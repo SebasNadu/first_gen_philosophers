@@ -3,6 +3,11 @@ import gql from "graphql-tag";
 export const typeDefs = gql`
   type Query {
     hello: String!
+    login(email: String!, password: String!): User!
+  }
+
+  type Mutation {
+    createUser(userInput: UserInputData): User!
   }
 
   type User {
@@ -20,15 +25,13 @@ export const typeDefs = gql`
     updatedAt: String!
   }
 
-  type Mutation {
-    createUser(
-      email: String!
-      password: String!
-      firstName: String
-      lastName: String
-      active: Boolean
-      profilePicture: String
-      story: String
-    ): User!
+  input UserInputData {
+    email: String!
+    password: String!
+    firstName: String!
+    lastName: String!
+    active: Boolean
+    profilePicture: String
+    story: String
   }
 `;
