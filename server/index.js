@@ -1,7 +1,8 @@
-import express from "express";
+import { startApolloServer } from "./app.js";
+import { typeDefs } from "./graphql/typeDefs.js";
+import { resolvers } from "./graphql/resolvers.js";
+import dotenv from "dotenv";
 
-const app = express();
+dotenv.config();
 
-const desirePort = 4000;
-app.listen(desirePort);
-console.log("Server on port http://localhost:" + desirePort);
+startApolloServer(typeDefs, resolvers);
