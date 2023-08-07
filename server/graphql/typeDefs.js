@@ -2,7 +2,6 @@ import gql from "graphql-tag";
 
 export const typeDefs = gql`
   type Query {
-    hello: String!
     login(email: String!, password: String!): User!
   }
 

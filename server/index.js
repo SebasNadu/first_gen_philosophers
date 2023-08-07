@@ -7,5 +7,5 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-connectDB();
 startApolloServer(typeDefs, resolvers);
+connectDB();
