@@ -3,10 +3,12 @@ import gql from "graphql-tag";
 export const typeDefs = gql`
   scalar DateTime
   type Query {
-    login(email: String!, password: String!): AuthData!
+    getUserById(id: ID!): User!
+    getUsers(total: Int): [User]
   }
 
   type Mutation {
+    login(email: String!, password: String!): AuthData!
     createUser(userInput: UserInputData): User!
     editProfile(profileInput: ProfileInputData): User!
   }

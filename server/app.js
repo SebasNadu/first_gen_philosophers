@@ -1,39 +1,23 @@
 import express from "express";
 import { ApolloServer } from "@apollo/server";
-import { expressMiddleware } from "@apollo/server/express4";
-import cors from "cors";
-import http from "http";
+import { startStandaloneServer } from "@apollo/server/standalone";
+// import context from "./utils/context.js";
 import jwt from "jsonwebtoken";
 
 export async function startApolloServer(typeDefs, resolvers) {
   try {
     const app = express();
-    const httpServer = http.createServer(app);
+    const corsOptions = {
+      origin: "*",
+      methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+      exposedHeaders: ["Authorization"],
+    };
     const server = new ApolloServer({
       typeDefs,
       resolvers,
-      context: ({ req }) => {
-        const authHeader = req.headers.authorization || "";
-        console.log(authHeader);
-        const token = authHeader.split(" ")[1];
-        if (!token) {
-          return { userId: null };
-        }
-        try {
-          const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-          console.log(decodedToken);
-          return { userId: decodedToken.userId };
-        } catch (error) {
-          console.log(error);
-          error.code = 401;
-          throw error;
-        }
-      },
+      introspection: true,
+      cors: corsOptions,
     });
-
-    await server.start();
-
-    app.use("/graphql", cors(), express.json(), expressMiddleware(server));
 
     app.use((error, req, res, next) => {
       console.log(error);
@@ -44,10 +28,25 @@ export async function startApolloServer(typeDefs, resolvers) {
     });
 
     const desiredPort = process.env.PORT ?? 4000;
-    await new Promise((resolve) =>
-      httpServer.listen({ port: desiredPort }, resolve)
-    );
-    console.log(`🚀 Server ready at http://localhost:${desiredPort}/graphql`);
+    const { url } = await startStandaloneServer(server, {
+      listen: { port: desiredPort },
+      context: async ({ req }) => {
+        const auth = req.headers.authorization || "";
+        const token = auth.split(" ")[1];
+        const user = jwt.verify(
+          token,
+          process.env.JWT_SECRET,
+          (err, decoded) => {
+            if (err) {
+              return null;
+            }
+            return decoded;
+          }
+        );
+        return { user };
+      },
+    });
+    console.log(`🚀 Server ready at ${url}`);
   } catch (error) {
     console.log("Error starting server", error.message);
     process.exit(1);

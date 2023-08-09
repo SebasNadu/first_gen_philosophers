@@ -4,6 +4,28 @@ import jwt from "jsonwebtoken";
 
 export const resolvers = {
   Query: {
+    getUserById: async (_, { id }, contextValue) => {
+      if (!contextValue.user) {
+        const error = new Error("Not authenticated");
+        error.code = 401;
+        throw error;
+      }
+      return User.findById(id).catch((error) => {
+        throw error;
+      });
+    },
+
+    getUsers: async (_, { total }) => {
+      return User.find()
+        .sort({ createdAt: -1 })
+        .limit(total)
+        .catch((error) => {
+          throw error;
+        });
+    },
+  },
+
+  Mutation: {
     login: async (_, { email, password }) => {
       const user = await User.findOne({ email }).select("+password");
       if (!user) {
@@ -23,13 +45,11 @@ export const resolvers = {
           email: user.email,
         },
         process.env.JWT_SECRET,
-        { expiresIn: "1h" }
+        { expiresIn: process.env.JWT_EXPIRES_IN }
       );
       return { token, userId: user.id };
     },
-  },
 
-  Mutation: {
     createUser: async (_, { userInput }) => {
       const {
         email,
@@ -80,16 +100,11 @@ export const resolvers = {
       return savedUser;
     },
 
-    editProfile: async (_, { profileInput }, context) => {
-      if (!context.userId) {
+    editProfile: async (_, { profileInput }, contextValue) => {
+      const { user } = contextValue;
+      if (!user) {
         const error = new Error("Not authenticated");
         error.code = 401;
-        throw error;
-      }
-      const user = await User.findById(context.userId);
-      if (!user) {
-        const error = new Error("User not found");
-        error.code = 404;
         throw error;
       }
       const { firstName, lastName, active, profilePicture, story } =
@@ -111,7 +126,7 @@ export const resolvers = {
         updatedFields.story = story;
       }
       const updatedUser = await User.findByIdAndUpdate(
-        context.userId,
+        user.userId,
         updatedFields,
         { new: true }
       );
