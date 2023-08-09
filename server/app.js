@@ -3,6 +3,7 @@ import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import cors from "cors";
 import http from "http";
+import jwt from "jsonwebtoken";
 
 export async function startApolloServer(typeDefs, resolvers) {
   try {
@@ -11,6 +12,23 @@ export async function startApolloServer(typeDefs, resolvers) {
     const server = new ApolloServer({
       typeDefs,
       resolvers,
+      context: ({ req }) => {
+        const authHeader = req.headers.authorization || "";
+        console.log(authHeader);
+        const token = authHeader.split(" ")[1];
+        if (!token) {
+          return { userId: null };
+        }
+        try {
+          const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+          console.log(decodedToken);
+          return { userId: decodedToken.userId };
+        } catch (error) {
+          console.log(error);
+          error.code = 401;
+          throw error;
+        }
+      },
     });
 
     await server.start();

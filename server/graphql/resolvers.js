@@ -79,5 +79,43 @@ export const resolvers = {
       const savedUser = await user.save();
       return savedUser;
     },
+
+    editProfile: async (_, { profileInput }, context) => {
+      if (!context.userId) {
+        const error = new Error("Not authenticated");
+        error.code = 401;
+        throw error;
+      }
+      const user = await User.findById(context.userId);
+      if (!user) {
+        const error = new Error("User not found");
+        error.code = 404;
+        throw error;
+      }
+      const { firstName, lastName, active, profilePicture, story } =
+        profileInput;
+      const updatedFields = {};
+      if (firstName !== undefined && firstName !== "") {
+        updatedFields.firstName = firstName;
+      }
+      if (lastName !== undefined && lastName !== "") {
+        updatedFields.lastName = lastName;
+      }
+      if (active !== undefined) {
+        updatedFields.active = active;
+      }
+      if (profilePicture !== undefined && profilePicture !== "") {
+        updatedFields.profilePicture = profilePicture;
+      }
+      if (story !== undefined && story !== "") {
+        updatedFields.story = story;
+      }
+      const updatedUser = await User.findByIdAndUpdate(
+        context.userId,
+        updatedFields,
+        { new: true }
+      );
+      return updatedUser;
+    },
   },
 };

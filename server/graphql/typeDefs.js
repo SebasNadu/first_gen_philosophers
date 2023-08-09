@@ -1,12 +1,19 @@
 import gql from "graphql-tag";
 
 export const typeDefs = gql`
+  scalar DateTime
   type Query {
-    login(email: String!, password: String!): User!
+    login(email: String!, password: String!): AuthData!
   }
 
   type Mutation {
     createUser(userInput: UserInputData): User!
+    editProfile(profileInput: ProfileInputData): User!
+  }
+
+  type AuthData {
+    token: String!
+    userId: String!
   }
 
   type User {
@@ -15,13 +22,13 @@ export const typeDefs = gql`
     password: String!
     firstName: String
     lastName: String
-    active: Boolean!
+    active: Boolean
     profilePicture: String
     story: String
     followers: [User]
     following: [User]
-    createdAt: String!
-    updatedAt: String!
+    createdAt: DateTime!
+    updatedAt: DateTime!
   }
 
   input UserInputData {
@@ -29,6 +36,14 @@ export const typeDefs = gql`
     password: String!
     firstName: String!
     lastName: String!
+    active: Boolean
+    profilePicture: String
+    story: String
+  }
+
+  input ProfileInputData {
+    firstName: String
+    lastName: String
     active: Boolean
     profilePicture: String
     story: String
