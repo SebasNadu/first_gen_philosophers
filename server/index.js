@@ -1,6 +1,6 @@
 import { startApolloServer } from "./app.js";
-import { typeDefs } from "./graphql/typeDefs.js";
-import { resolvers } from "./graphql/resolvers.js";
+import typeDefs from "./modules/schemas_index.js";
+import resolvers from "./modules/resolvers_index.js";
 import { connectDB } from "./utils/db.js";
 
 import dotenv from "dotenv";

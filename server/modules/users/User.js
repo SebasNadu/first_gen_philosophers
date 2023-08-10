@@ -40,6 +40,17 @@ userSchema.pre("save", async function (next) {
   }
 });
 
+// Hashing password before updating
+userSchema.pre("findOneAndUpdate", async function (next) {
+  if (!this._update.password) return next();
+  try {
+    this._update.password = await bcrypt.hash(this._update.password, 12);
+    next();
+  } catch (error) {
+    throw new Error("Error hashing password");
+  }
+});
+
 // Compare password
 userSchema.methods.comparePassword = async (password, userPassword) => {
   try {

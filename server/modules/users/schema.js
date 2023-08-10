@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 
-export const typeDefs = gql`
+export const userSchema = gql`
   scalar DateTime
   type Query {
     getUserById(id: ID!): User!
@@ -10,7 +10,8 @@ export const typeDefs = gql`
   type Mutation {
     login(email: String!, password: String!): AuthData!
     createUser(userInput: UserInputData): User!
-    editProfile(profileInput: ProfileInputData): User!
+    updateUser(userInputUpdate: UserInputUpdateData): User!
+    deleteUser(id: ID!): Boolean
   }
 
   type AuthData {
@@ -43,7 +44,10 @@ export const typeDefs = gql`
     story: String
   }
 
-  input ProfileInputData {
+  input UserInputUpdateData {
+    email: String
+    newPassword: String
+    currentPassword: String
     firstName: String
     lastName: String
     active: Boolean

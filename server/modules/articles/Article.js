@@ -4,10 +4,11 @@ const articleSchema = mongoose.Schema(
   {
     title: { type: String, required: true },
     body: { type: String, required: true },
-    Tags: [{ type: String, required: true }],
+    tags: [{ type: String, required: true }],
+    picture: { type: String, required: false },
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    comment: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
   },
   { timestamps: true }
 );
