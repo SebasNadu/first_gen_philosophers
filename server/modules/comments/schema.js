@@ -45,6 +45,7 @@ export const commentSchema = gql`
     title: String!
     body: String!
     tags: [String]
+    picture: String
     user: User!
     likes: [User]
     comments: [Comment]

@@ -12,6 +12,8 @@ export const userSchema = gql`
     createUser(userInput: UserInputData): User!
     updateUser(userInputUpdate: UserInputUpdateData): User!
     deleteUser(id: ID!): Boolean
+    followUser(id: ID!): Boolean
+    unfollowUser(id: ID!): Boolean
   }
 
   type AuthData {

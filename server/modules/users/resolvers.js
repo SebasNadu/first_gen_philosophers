@@ -258,5 +258,83 @@ export const userResolver = {
         throw error;
       }
     },
+
+    followUser: async (_, { id }, contextValue) => {
+      try {
+        if (!contextValue.user) {
+          const error = new Error("Not authenticated");
+          error.code = 401;
+          throw error;
+        }
+        if (contextValue.user.userId === id) {
+          const error = new Error("You cannot follow yourself");
+          error.code = 422;
+          throw error;
+        }
+        const user = await User.findById(contextValue.user.userId);
+        const userToFollow = await User.findById(id);
+        if (!userToFollow) {
+          const error = new Error("User not found");
+          error.code = 404;
+          throw error;
+        }
+        // Check if user is already following
+        if (user.following.includes(id)) {
+          const error = new Error("You are already following this user");
+          error.code = 422;
+          throw error;
+        }
+        // Follow user
+        user.following.push(id);
+        userToFollow.followers.push(contextValue.user.userId);
+        await user.save();
+        await userToFollow.save();
+        return true;
+      } catch (error) {
+        if (!error.code) {
+          error.code = 500;
+        }
+        throw error;
+      }
+    },
+
+    unfollowUser: async (_, { id }, contextValue) => {
+      try {
+        if (!contextValue.user) {
+          const error = new Error("Not authenticated");
+          error.code = 401;
+          throw error;
+        }
+        if (contextValue.user.userId === id) {
+          const error = new Error("You cannot unfollow yourself");
+          error.code = 422;
+          throw error;
+        }
+        const user = await User.findById(contextValue.user.userId);
+        const userToUnfollow = await User.findById(id);
+        if (!userToUnfollow) {
+          const error = new Error("User not found");
+          error.code = 404;
+          throw error;
+        }
+        // Check if user is already following
+        if (!user.following.includes(id)) {
+          const error = new Error("You are not following this user");
+          error.code = 422;
+          throw error;
+        }
+        // Unfollow user
+        user.following.pull(id);
+        userToUnfollow.followers.pull(contextValue.user.userId);
+        await user.save();
+        await userToUnfollow.save();
+        return true;
+      } catch (error) {
+        if (!error.code) {
+          error.code = 500;
+        }
+        throw error;
+      }
+    },
   },
 };

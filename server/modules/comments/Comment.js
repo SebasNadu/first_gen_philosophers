@@ -5,7 +5,10 @@ const commentSchema = mongoose.Schema(
     content: { type: String, required: true },
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     article: { type: mongoose.Schema.Types.ObjectId, ref: "Article" },
-    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    likes: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+      default: [],
+    },
   },
   { timestamps: true }
 );

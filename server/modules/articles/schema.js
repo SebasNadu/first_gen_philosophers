@@ -6,12 +6,17 @@ export const articleSchema = gql`
   type Query {
     getArticleById(id: ID!): Article!
     getArticles(total: Int): [Article]
+    getArticlesByUser(userId: ID!, total: Int): [Article]
+    getTopArticlesByLikes(total: Int): [Article]
+    getTopArticlesByComments(total: Int): [Article]
   }
 
   type Mutation {
     createArticle(articleInput: ArticleInputData): Article!
     updateArticle(id: ID!, articleInput: ArticleInputData): Article!
     deleteArticle(id: ID!): Boolean
+    likeArticle(id: ID!): Boolean
+    unlikeArticle(id: ID!): Boolean
   }
 
   type User {
@@ -44,6 +49,7 @@ export const articleSchema = gql`
     title: String!
     body: String!
     tags: [String]
+    picture: String
     user: User!
     likes: [User]
     comments: [Comment]
@@ -55,5 +61,6 @@ export const articleSchema = gql`
     title: String!
     body: String!
     tags: [String]
+    picture: String
   }
 `;
