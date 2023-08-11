@@ -14,4 +14,86 @@
 
 body {
   font-family: "WorkSans";
+  color: #000;
+  background-color: #fff;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "WorkSans";
+  font-weight: 600;
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.75rem;
+}
+
+h4 {
+  font-size: 1.5rem;
+}
+
+h5 {
+  font-size: 1.25rem;
+}
+
+h6 {
+  font-size: 1rem;
+}
+
+p {
+  font-family: "WorkSans";
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+a {
+  font-family: "WorkSans";
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #000;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #000;
+  text-decoration: underline;
+}
+
+a:focus {
+  outline: none;
+}
+
+a:active {
+  outline: none;
+}
+
+a:visited {
+  color: #000;
+}
+
+a:visited:hover {
+  color: #000;
+  text-decoration: underline;
+}
+
+a:visited:focus {
+  outline: none;
+}
+
+a:visited:active {
+  outline: none;
 }
