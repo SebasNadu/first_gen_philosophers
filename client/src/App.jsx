@@ -1,14 +1,12 @@
 import "./App.css";
 import { Navbar } from "./components/navbar.jsx";
+import ExamplePage from "./pages/example";
 
 function App() {
   return (
     <>
-      <h1>hello</h1>
-      <p>world</p>
-      <div>
-        <Navbar />
-      </div>
+      <Navbar />
+      <ExamplePage />
     </>
   );
 }
