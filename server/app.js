@@ -1,8 +1,7 @@
 import express from "express";
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
-// import context from "./utils/context.js";
-import jwt from "jsonwebtoken";
+import context from "./utils/context.js";
 
 export async function startApolloServer(typeDefs, resolvers) {
   try {
@@ -30,21 +29,7 @@ export async function startApolloServer(typeDefs, resolvers) {
     const desiredPort = process.env.PORT ?? 4000;
     const { url } = await startStandaloneServer(server, {
       listen: { port: desiredPort },
-      context: async ({ req }) => {
-        const auth = req.headers.authorization || "";
-        const token = auth.split(" ")[1];
-        const user = jwt.verify(
-          token,
-          process.env.JWT_SECRET,
-          (err, decoded) => {
-            if (err) {
-              return null;
-            }
-            return decoded;
-          }
-        );
-        return { user };
-      },
+      context: context,
     });
     console.log(`🚀 Server ready at ${url}`);
   } catch (error) {
