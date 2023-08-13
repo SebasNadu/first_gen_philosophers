@@ -21,7 +21,7 @@ const userSchema = mongoose.Schema(
     firstName: { type: String },
     lastName: { type: String },
     active: { type: Boolean, default: false },
-    profilePicture: { type: String, default: "" },
+    profilePicture: { type: String, default: "images/blankProfile.png" },
     story: { type: String, default: "" },
     followers: {
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],

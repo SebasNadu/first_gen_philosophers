@@ -3,8 +3,11 @@ import Article from "../articles/Article.js";
 import Comment from "../comments/Comment.js";
 import validator from "validator";
 import jwt from "jsonwebtoken";
+// import GraphQLUpload from "graphql-upload/GraphQLUpload.mjs";
+import { v2 as cloudinary } from "cloudinary";
 
 export const userResolver = {
+  // Upload: GraphQLUpload,
   Query: {
     getUserById: async (_, { id }, contextValue) => {
       if (!contextValue.user) {
@@ -37,6 +40,31 @@ export const userResolver = {
   },
 
   Mutation: {
+    generateSignedUrl: async (_, { filename }) => {
+      try {
+        const uploadOptions = {
+          public_id: filename,
+          upload_preset: "firstGenPhilo",
+          allow_formats: ["jpg", "png"],
+          timestamp: Math.round(Date.now() / 1000),
+        };
+
+        const signedUrl = cloudinary.url(filename, {
+          type: "upload",
+          resource_type: "auto",
+          sign_url: true,
+          secure: true,
+          upload_params: uploadOptions,
+        });
+
+        return signedUrl;
+      } catch (error) {
+        error.code = 500;
+        error.data = "Server error";
+        throw error;
+      }
+    },
+
     login: async (_, { email, password }) => {
       const user = await User.findOne({ email }).select("+password");
       if (!user) {
@@ -99,6 +127,38 @@ export const userResolver = {
         error.code = 422;
         throw error;
       }
+      // let picture;
+      // if (
+      //   profilePicture !== undefined ||
+      //   profilePicture !== "" ||
+      //   profilePicture !== null
+      // ) {
+      //   const { createReadStream, mimetype } = await profilePicture;
+      //
+      //   if (mimetype !== "image/jpeg" && mimetype !== "image/png") {
+      //     const error = new Error("File type is not supported");
+      //     error.code = 422;
+      //     throw error;
+      //   }
+      //
+      //   const uploadStream = cloudinary.uploader.upload_stream({
+      //     folder: "profile_pictures",
+      //   });
+      //
+      //   const fileStream = createReadStream();
+      //   fileStream.pipe(uploadStream);
+      //   const result = await new Promise((resolve, reject) => {
+      //     uploadStream.on("error", (error) => {
+      //       reject(error);
+      //     });
+      //     uploadStream.on("finish", (result) => {
+      //       resolve(result);
+      //     });
+      //   });
+      //   picture = result.secure_url;
+      // } else {
+      //   picture = profilePicture;
+      // }
       const user = new User({
         email,
         password,
@@ -143,7 +203,32 @@ export const userResolver = {
         updatedFields.active = active;
       }
       if (profilePicture !== undefined && profilePicture !== "") {
-        updatedFields.profilePicture = profilePicture;
+        if (!profilePicture.startsWith("/images/")) {
+          // const { createReadStream, mimetype } = await profilePicture;
+          //
+          // if (mimetype !== "image/jpeg" && mimetype !== "image/png") {
+          //   const error = new Error("File type is not supported");
+          //   error.code = 422;
+          //   throw error;
+          // }
+          //
+          // const uploadStream = cloudinary.uploader.upload_stream({
+          //   folder: "profile_pictures",
+          // });
+          //
+          // const fileStream = createReadStream();
+          // fileStream.pipe(uploadStream);
+          // const result = await new Promise((resolve, reject) => {
+          //   uploadStream.on("error", (error) => {
+          //     reject(error);
+          //   });
+          //   uploadStream.on("finish", (result) => {
+          //     resolve(result);
+          //   });
+          // });
+          // updatedFields.profilePicture = result.secure_url;
+          updatedFields.profilePicture = profilePicture;
+        }
       }
       if (story !== undefined && story !== "") {
         updatedFields.story = story;

@@ -2,12 +2,15 @@ import gql from "graphql-tag";
 
 export const userSchema = gql`
   scalar DateTime
+  # scalar Upload
+
   type Query {
     getUserById(id: ID!): User!
     getUsers(total: Int): [User]
   }
 
   type Mutation {
+    generateSignedUrl(filename: String!): String!
     login(email: String!, password: String!): AuthData!
     createUser(userInput: UserInputData): User!
     updateUser(userInputUpdate: UserInputUpdateData): User!
