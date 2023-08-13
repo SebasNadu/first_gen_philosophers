@@ -17,6 +17,7 @@ export const articleSchema = gql`
     deleteArticle(id: ID!): Boolean
     likeArticle(id: ID!): Boolean
     unlikeArticle(id: ID!): Boolean
+    generatePictures(content: String!): [String]
   }
 
   type User {
@@ -50,6 +51,7 @@ export const articleSchema = gql`
     body: String!
     tags: [String]
     picture: String
+    active: Boolean!
     user: User!
     likes: [User]
     comments: [Comment]
@@ -62,5 +64,6 @@ export const articleSchema = gql`
     body: String!
     tags: [String]
     picture: String
+    active: Boolean
   }
 `;

@@ -2,6 +2,17 @@ import Article from "./Article.js";
 import User from "../users/User.js";
 import Comment from "../comments/Comment.js";
 import validator from "validator";
+import { Configuration, OpenAIApi } from "openai";
+import fs from "fs";
+import path from "path";
+import { v2 as cloudinary } from "cloudinary";
+
+const configuration = new Configuration({
+  orgainzationId: process.env.OPENAI_ORG_ID,
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+const openai = new OpenAIApi(configuration);
 
 export const articleResolver = {
   Query: {
@@ -116,7 +127,7 @@ export const articleResolver = {
         error.code = 401;
         throw error;
       }
-      const { title, body, tags, picture } = articleInput;
+      const { title, body, tags, picture, active } = articleInput;
       const errors = [];
       // Validate input
       if (validator.isEmpty(title)) {
@@ -137,11 +148,37 @@ export const articleResolver = {
         error.code = 401;
         throw error;
       }
+      let cloudinaryPictureUrl = null;
+      if (picture) {
+        try {
+          const response = await fetch(picture);
+          if (!response.ok) {
+            throw new Error("Failed to fetch image");
+          }
+
+          const imageStream = response.body;
+          const uploadStream = cloudinary.uploader.upload_stream(
+            { folder: "article-pictures" },
+            (error, result) => {
+              if (error) {
+                throw error;
+              }
+              cloudinaryPictureUrl = result.secure_url;
+            }
+          );
+
+          imageStream.pipe(uploadStream);
+        } catch (error) {
+          console.error("Error while uploading image:", error);
+          throw new Error("Error while uploading image");
+        }
+      }
       const article = new Article({
         title,
         body,
         tags,
-        picture,
+        picture: cloudinaryPictureUrl,
+        active,
         user: currentUser,
       });
       const savedArticle = await article.save();
@@ -154,7 +191,7 @@ export const articleResolver = {
         error.code = 401;
         throw error;
       }
-      const { title, body, tags, picture } = articleInput;
+      const { title, body, tags, picture, active } = articleInput;
       const updatedFields = {};
       // Validate input and update fields
       if (title !== undefined && title !== "") {
@@ -167,7 +204,48 @@ export const articleResolver = {
         updatedFields.tags = tags;
       }
       if (picture !== undefined && picture !== "") {
-        updatedFields.picture = picture;
+        try {
+          const response = await fetch(picture);
+          if (!response.ok) {
+            throw new Error("Failed to fetch image");
+          }
+
+          const imageStream = response.body;
+          const result = await new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+              { folder: "article-pictures" },
+              (error, result) => {
+                if (error) {
+                  reject(error);
+                }
+                resolve(result);
+              }
+            );
+
+            imageStream.pipe(uploadStream);
+          });
+
+          updatedFields.picture = result.secure_url;
+
+          // Remove old picture if present
+          const articleToUpdate = await Article.findById(id);
+          if (articleToUpdate.picture) {
+            try {
+              const publicId = articleToUpdate.picture.match(/\/([^/]+)$/)[1];
+              await cloudinary.uploader.destroy(publicId, { invalidate: true });
+            } catch (error) {
+              console.error("Error deleting old image:", error);
+              error.code = 500;
+              throw error;
+            }
+          }
+        } catch (error) {
+          console.error("Error while uploading image:", error);
+          throw new Error("Error while uploading image");
+        }
+      }
+      if (active !== undefined) {
+        updatedFields.active = active;
       }
       const updatedArticle = await Article.findByIdAndUpdate(
         id,
@@ -197,6 +275,17 @@ export const articleResolver = {
           const error = new Error("Not authorized");
           error.code = 403;
           throw error;
+        }
+
+        if (article.picture) {
+          try {
+            const publicId = article.picture.match(/\/([^/]+)$/)[1]; // Extract public_id
+            await cloudinary.uploader.destroy(publicId, { invalidate: true });
+          } catch (error) {
+            console.error("Error deleting image:", error);
+            error.code = 500;
+            throw error;
+          }
         }
         // Delete all comments associated with the article
         await Comment.deleteMany({ article: id });
@@ -281,6 +370,36 @@ export const articleResolver = {
         if (!error.code) {
           error.code = 500;
         }
+        throw error;
+      }
+    },
+
+    generatePictures: async (_, { content }, contextValue) => {
+      try {
+        if (!contextValue.user) {
+          const error = new Error("Not authenticated");
+          error.code = 401;
+          throw error;
+        }
+        const responseText = await openai.createChatCompletion({
+          model: "gpt-3.5-turbo",
+          message: [
+            `You will be providded with a block of text, and your task is to exitract a list of keywords from it: ${content}`,
+          ],
+          temperature: 0.5,
+          maxTokens: 64,
+        });
+        const keywords = responseText.data.choices[0].text.split(",");
+        const responsePicture = await openai.createImage({
+          prompt: keywords,
+          n: 3,
+          size: "1024x1024",
+        });
+        const pictures = responsePicture.data.images;
+        return pictures;
+      } catch (error) {
+        error.code = 500;
+        error.message = "Error generating pictures";
         throw error;
       }
     },

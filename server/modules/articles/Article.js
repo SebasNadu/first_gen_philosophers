@@ -6,6 +6,7 @@ const articleSchema = mongoose.Schema(
     body: { type: String, required: true },
     tags: { type: [{ type: String, required: true }], default: [] },
     picture: { type: String, required: false },
+    active: { type: Boolean, default: false },
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     likes: {
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
