@@ -8,8 +8,8 @@ import path from "path";
 import { v2 as cloudinary } from "cloudinary";
 
 const configuration = new Configuration({
-  orgainzationId: process.env.OPENAI_ORG_ID,
-  apiKey: process.env.OPENAI_API_KEY,
+  organization: process.env.OPENAI_ORG_ID,
+  apiKey: "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",
 });
 
 const openai = new OpenAIApi(configuration);
@@ -395,8 +395,8 @@ export const articleResolver = {
             },
           ],
           temperature: 0.8,
-          maxTokens: 64,
-          topP: 1,
+          max_tokens: 64,
+          top_p: 1,
         });
         // const keywords = responseText.data.choices[0].message.content.trim();
         const keywords = responseText.data.choices[0].message?.content?.trim();
@@ -405,9 +405,10 @@ export const articleResolver = {
           n: 3,
           size: "1024x1024",
         });
-        const pictures = responsePicture.data.map((picture) => {
+        const pictures = responsePicture.data.data.map((picture) => {
           return picture.url;
         });
+        console.log(pictures);
         return pictures;
       } catch (error) {
         if (error.response) {

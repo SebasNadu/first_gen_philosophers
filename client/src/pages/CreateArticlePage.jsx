@@ -6,7 +6,7 @@ const CreateArticlePage = () => {
     <>
       <div className="container mx-auto px-4">
         <div>
-          <h1 className="text-center">Create Article</h1>
+          <h1 className="text-center p-2 mt-4">Create Article</h1>
           <br />
           <Divider />
           <br />

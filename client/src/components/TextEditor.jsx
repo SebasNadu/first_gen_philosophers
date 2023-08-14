@@ -12,6 +12,8 @@ import {
 } from "@nextui-org/react";
 import { useMemo } from "react";
 import { Toaster, toast } from "sonner";
+import { useMutation } from "@apollo/client";
+import { GENERATE_PICTURES } from "../graphql/mutations";
 
 const TextEditor = () => {
   const [text, setText] = useState("");
@@ -19,6 +21,8 @@ const TextEditor = () => {
   const [preTag, setPreTag] = useState("");
   const [tags, setTags] = useState([]);
   const [publicArticle, setPublicArticle] = useState(false);
+  const [generatePictures, { loading, error, data }] =
+    useMutation(GENERATE_PICTURES);
 
   const handleTextChange = (text) => {
     setText(text);
@@ -54,12 +58,12 @@ const TextEditor = () => {
     if (text.length < 10) {
       toast.error("You have to write your article first!");
     }
-    try {
-      const response = fetch("http://localhost:3000/graphql");
-    } catch (error) {
-      console.log(error);
-      toast.error("Something went wrong, try again!");
-    }
+    generatePictures({
+      variables: {
+        content: text,
+      },
+    });
+    console.log(data);
   };
 
   const publicArticleHandler = () => {
@@ -73,6 +77,7 @@ const TextEditor = () => {
           <div className="flex-grow">
             <div className="flex items-center gap-4">
               <Input
+                required
                 value={title}
                 type="text"
                 label="Title"
@@ -87,10 +92,11 @@ const TextEditor = () => {
                 className="max-w-xs my-4"
               />
               <Input
+                required
                 type="text"
                 label="Tags"
                 variant="bordered"
-                className="w-64 max-w-xs"
+                className="max-w-[150px]"
                 value={preTag}
                 onValueChange={setPreTag}
                 onKeyDown={handleTagsChange}
@@ -107,6 +113,17 @@ const TextEditor = () => {
                     </Chip>
                   ))}
               </div>
+              <div className="flex gap-4 ml-auto">
+                <Checkbox radius="full" onClick={publicArticleHandler}>
+                  Public?
+                </Checkbox>
+                <Button
+                  radius="full"
+                  className="bg-gradient-to-tr from-cyan-500 to-lime-400 text-white shadow-lg"
+                >
+                  Save it!
+                </Button>
+              </div>
             </div>
             <ReactQuill
               theme="snow"
@@ -114,12 +131,6 @@ const TextEditor = () => {
               onChange={handleTextChange}
               placeholder="Write something..."
             />
-            <div className="flex justify-center gap-4 p-4 m-4">
-              <Checkbox radius="full" onClick={publicArticleHandler}>
-                Public?
-              </Checkbox>
-              <Button variant="ghost">Save it!</Button>
-            </div>
           </div>
           <div className="flex flex-grow-0 p-4 ml-4">
             <Divider orientation="vertical" />
@@ -142,7 +153,7 @@ const TextEditor = () => {
               </Card>
               <Button
                 radius="full"
-                className="bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg"
+                className="bg-gradient-to-tr from-cyan-500 to-lime-400 text-white shadow-lg"
                 onClick={handleImagesGenerator}
               >
                 Generate Pictures
