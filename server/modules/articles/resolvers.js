@@ -383,23 +383,39 @@ export const articleResolver = {
         }
         const responseText = await openai.createChatCompletion({
           model: "gpt-3.5-turbo",
-          message: [
-            `You will be providded with a block of text, and your task is to exitract a list of keywords from it: ${content}`,
+          messages: [
+            {
+              role: "system",
+              content:
+                "You will be provided with a block of text, and your task is to extract a list of keywords from it.",
+            },
+            {
+              role: "user",
+              content: content,
+            },
           ],
-          temperature: 0.5,
+          temperature: 0.8,
           maxTokens: 64,
+          topP: 1,
         });
-        const keywords = responseText.data.choices[0].text.split(",");
+        // const keywords = responseText.data.choices[0].message.content.trim();
+        const keywords = responseText.data.choices[0].message?.content?.trim();
         const responsePicture = await openai.createImage({
           prompt: keywords,
           n: 3,
           size: "1024x1024",
         });
-        const pictures = responsePicture.data.images;
+        const pictures = responsePicture.data.map((picture) => {
+          return picture.url;
+        });
         return pictures;
       } catch (error) {
-        error.code = 500;
-        error.message = "Error generating pictures";
+        if (error.response) {
+          console.error(error.response.data);
+          console.error(error.response.status);
+        } else {
+          console.log(error.message);
+        }
         throw error;
       }
     },
