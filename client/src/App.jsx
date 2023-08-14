@@ -6,7 +6,7 @@ import CreateArticlePage from "./pages/CreateArticlePage";
 function App() {
   return (
     <>
-      <Navbar />
+      {/* <Navbar />*/}
       <CreateArticlePage />
       <ExamplePage />
     </>
