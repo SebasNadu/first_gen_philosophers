@@ -18,6 +18,7 @@ const TextEditor = () => {
   const [title, setTitle] = useState("");
   const [preTag, setPreTag] = useState("");
   const [tags, setTags] = useState([]);
+  const [publicArticle, setPublicArticle] = useState(false);
 
   const handleTextChange = (text) => {
     setText(text);
@@ -53,6 +54,16 @@ const TextEditor = () => {
     if (text.length < 10) {
       toast.error("You have to write your article first!");
     }
+    try {
+      const response = fetch("http://localhost:3000/graphql");
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong, try again!");
+    }
+  };
+
+  const publicArticleHandler = () => {
+    setPublicArticle(!publicArticle);
   };
 
   return (
@@ -104,7 +115,9 @@ const TextEditor = () => {
               placeholder="Write something..."
             />
             <div className="flex justify-center gap-4 p-4 m-4">
-              <Checkbox radius="full">Public?</Checkbox>
+              <Checkbox radius="full" onClick={publicArticleHandler}>
+                Public?
+              </Checkbox>
               <Button variant="ghost">Save it!</Button>
             </div>
           </div>
