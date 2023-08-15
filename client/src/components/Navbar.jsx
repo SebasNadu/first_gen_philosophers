@@ -14,7 +14,7 @@ import {
 import { AcmeLogo } from "./FGP_Logo.jsx";
 import { SearchIcon } from "./SearchIcon.jsx";
 
-export function Navbar42() {
+export default function Navbar42() {
   return (
     <Navbar isBordered className="flex">
       <NavbarContent className="flex justify-start">

@@ -14,6 +14,7 @@ import { useMemo } from "react";
 import { Toaster, toast } from "sonner";
 import { useMutation } from "@apollo/client";
 import { GENERATE_PICTURES } from "../graphql/mutations";
+import { Suspense } from "react";
 
 const TextEditor = () => {
   const [text, setText] = useState("");
@@ -21,6 +22,7 @@ const TextEditor = () => {
   const [preTag, setPreTag] = useState("");
   const [tags, setTags] = useState([]);
   const [publicArticle, setPublicArticle] = useState(false);
+  const [pictures, setPictures] = useState([]);
   const [generatePictures, { loading, error, data }] =
     useMutation(GENERATE_PICTURES);
 
@@ -54,16 +56,32 @@ const TextEditor = () => {
     }
   };
 
-  const handleImagesGenerator = () => {
+  const handleImagesGenerator = async () => {
     if (text.length < 10) {
       toast.error("You have to write your article first!");
+      return;
     }
-    generatePictures({
-      variables: {
-        content: text,
-      },
-    });
-    console.log(data);
+
+    try {
+      const response = await generatePictures({
+        variables: {
+          content: text,
+        },
+        skip: pictures.length < 5,
+      });
+
+      const generatedPictures = response.data?.generatePictures;
+
+      if (generatedPictures) {
+        // Actualiza el estado con las imágenes generadas
+        setPictures(generatedPictures);
+      } else {
+        toast.error("Failed to generate pictures");
+      }
+    } catch (error) {
+      console.error("Error generating pictures:", error);
+      toast.error("Error generating pictures");
+    }
   };
 
   const publicArticleHandler = () => {
@@ -136,21 +154,35 @@ const TextEditor = () => {
             <Divider orientation="vertical" />
             <div className="flex flex-col items-center justify-center ml-4 gap-0">
               <h3>Pick your Article picture!</h3>
-              <Card className="w-[200px] space-y-5 p-4 my-2" radius="2xl">
-                <Skeleton className="rounded-lg">
-                  <div className="h-24 rounded-lg bg-default-300"></div>
-                </Skeleton>
-              </Card>
-              <Card className="w-[200px] space-y-5 p-4 my-2" radius="2xl">
-                <Skeleton className="rounded-lg">
-                  <div className="h-24 rounded-lg bg-default-300"></div>
-                </Skeleton>
-              </Card>
-              <Card className="w-[200px] space-y-5 p-4 my-4" radius="2xl">
-                <Skeleton className="rounded-lg">
-                  <div className="h-24 rounded-lg bg-default-300"></div>
-                </Skeleton>
-              </Card>
+              {pictures.length === 0 ? ( // Renderiza Skeletons mientras no haya imágenes
+                <>
+                  <Card className="w-[200px] space-y-5 p-4 my-2" radius="2xl">
+                    <Skeleton className="rounded-lg">
+                      <div className="h-24 rounded-lg bg-default-300"></div>
+                    </Skeleton>
+                  </Card>
+                  <Card className="w-[200px] space-y-5 p-4 my-2" radius="2xl">
+                    <Skeleton className="rounded-lg">
+                      <div className="h-24 rounded-lg bg-default-300"></div>
+                    </Skeleton>
+                  </Card>
+                  <Card className="w-[200px] space-y-5 p-4 my-4" radius="2xl">
+                    <Skeleton className="rounded-lg">
+                      <div className="h-24 rounded-lg bg-default-300"></div>
+                    </Skeleton>
+                  </Card>
+                </>
+              ) : (
+                pictures.map((url, index) => (
+                  <Card
+                    key={index}
+                    className="w-[200px] space-y-5 p-4 my-2"
+                    radius="2xl"
+                  >
+                    <img src={url} alt={`Image ${index}`} />
+                  </Card>
+                ))
+              )}
               <Button
                 radius="full"
                 className="bg-gradient-to-tr from-cyan-500 to-lime-400 text-white shadow-lg"

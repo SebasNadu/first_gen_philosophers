@@ -2,17 +2,10 @@ import Article from "./Article.js";
 import User from "../users/User.js";
 import Comment from "../comments/Comment.js";
 import validator from "validator";
-import { Configuration, OpenAIApi } from "openai";
-import fs from "fs";
-import path from "path";
+// import fs from "fs";
+// import path from "path";
 import { v2 as cloudinary } from "cloudinary";
-
-const configuration = new Configuration({
-  organization: process.env.OPENAI_ORG_ID,
-  apiKey: "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",
-});
-
-const openai = new OpenAIApi(configuration);
+import openai from "../../utils/openai.js";
 
 export const articleResolver = {
   Query: {
