@@ -28,10 +28,12 @@ function RootLayout() {
   return (
     <>
       <Navbar42 />
-      <main>
-        {/* {navigation.state === 'loading' && <p>Loading...</p>} */}
-        <Outlet />
-      </main>
+      <div className="container mx-auto">
+        <main>
+          {/* {navigation.state === 'loading' && <p>Loading...</p>} */}
+          <Outlet />
+        </main>
+      </div>
     </>
   );
 }

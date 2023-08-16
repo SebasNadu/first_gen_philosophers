@@ -3,7 +3,6 @@ import {
   NavbarBrand,
   NavbarContent,
   NavbarItem,
-  Link,
   Input,
   DropdownItem,
   DropdownTrigger,
@@ -13,13 +12,21 @@ import {
 } from "@nextui-org/react";
 import { AcmeLogo } from "./FGP_Logo.jsx";
 import { SearchIcon } from "./SearchIcon.jsx";
+import { Link, NavLink } from "react-router-dom";
+import { PlusCircleIcon } from "@heroicons/react/24/outline";
 
 export default function Navbar42() {
   return (
-    <Navbar isBordered className="flex">
-      <NavbarContent className="flex justify-start">
-        <NavbarBrand className="">
-          <AcmeLogo />
+    <Navbar
+      maxWidth="2xl"
+      isBordered
+      className="w-screen min-w-screen max-w-screen justify-around"
+    >
+      <NavbarContent justify="center" className="">
+        <NavbarBrand className="mr-4">
+          <Link to="/" className="hover:no-underline">
+            <AcmeLogo />
+          </Link>
         </NavbarBrand>
         <NavbarContent className="hidden sm:flex gap-3">
           <NavbarItem>
@@ -30,10 +37,10 @@ export default function Navbar42() {
         </NavbarContent>
       </NavbarContent>
 
-      <NavbarContent as="div" className="items-center" justify="end">
+      <NavbarContent as="div" justify="end" className="items-center">
         <Input
           classNames={{
-            base: "max-w-full sm:max-w-[10rem] h-10",
+            base: "max-w-full md:max-w-[20rem] h-10",
             mainWrapper: "h-full",
             input: "text-small",
             inputWrapper:
@@ -44,13 +51,20 @@ export default function Navbar42() {
           startContent={<SearchIcon size={18} />}
           type="search"
         />
+
+        <NavbarItem className="list">
+          <NavLink to="/create-article">
+            <PlusCircleIcon className="w-8 h-8 hover:text-teal-500 active:text-green-300" />
+          </NavLink>
+        </NavbarItem>
+
         <Dropdown placement="bottom-end">
           <DropdownTrigger>
             <Avatar
               isBordered
               as="button"
               className="transition-transform"
-              color="secondary"
+              color="success"
               name="Jason Hughes"
               size="sm"
               src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
@@ -58,10 +72,13 @@ export default function Navbar42() {
           </DropdownTrigger>
           <DropdownMenu aria-label="Profile Actions" variant="flat">
             <DropdownItem key="profile" className="h-14 gap-2">
-              <p className="font-semibold">Signed in as</p>
-              <p className="font-semibold">zoey@example.com</p>
+              <Link to="/profile" className="hover:no-underline">
+                <div className="min-w-full min-h-full">
+                  <p className="font-semibold">Signed in as</p>
+                  <p className="font-semibold">zoey@example.com</p>
+                </div>
+              </Link>
             </DropdownItem>
-            <DropdownItem key="profile">My Profile</DropdownItem>
             <DropdownItem key="articles">My Articles</DropdownItem>
             <DropdownItem key="like">What I Like</DropdownItem>
             <DropdownItem key="discover">Discover</DropdownItem>
