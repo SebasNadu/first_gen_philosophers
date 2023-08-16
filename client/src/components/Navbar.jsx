@@ -53,11 +53,10 @@ export default function Navbar42() {
         />
 
         <NavbarItem className="list">
-          <NavLink to="/create-article">
+          <NavLink to="articles/create">
             <PlusCircleIcon className="w-8 h-8 hover:text-teal-500 active:text-green-300" />
           </NavLink>
         </NavbarItem>
-
         <Dropdown placement="bottom-end">
           <DropdownTrigger>
             <Avatar
@@ -72,16 +71,22 @@ export default function Navbar42() {
           </DropdownTrigger>
           <DropdownMenu aria-label="Profile Actions" variant="flat">
             <DropdownItem key="profile" className="h-14 gap-2">
-              <Link to="/profile" className="hover:no-underline">
+              <Link to="profile" className="hover:no-underline">
                 <div className="min-w-full min-h-full">
                   <p className="font-semibold">Signed in as</p>
                   <p className="font-semibold">zoey@example.com</p>
                 </div>
               </Link>
             </DropdownItem>
-            <DropdownItem key="articles">My Articles</DropdownItem>
+            <DropdownItem key="MyArticles">My Articles</DropdownItem>
             <DropdownItem key="like">What I Like</DropdownItem>
-            <DropdownItem key="discover">Discover</DropdownItem>
+            <DropdownItem key="discover">
+              <Link to="discover" className="hover:no-underline">
+                <div className="min-w-full min-h-full">
+                  <p>Discover</p>
+                </div>
+              </Link>
+            </DropdownItem>
             <DropdownItem key="leaderboard">Leaderboard</DropdownItem>
             <DropdownItem key="logout" color="danger">
               Log Out
