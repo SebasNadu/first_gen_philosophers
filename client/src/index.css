@@ -119,5 +119,10 @@ a:visited:active {
 
 .title-text {
   font-size: 18px;
-  color: #3B82F6;
+  color: #3b82f6;
+}
+
+/* hide the arrows with the modals */
+.react-multiple-carousel__arrow {
+  z-index: 49;
 }

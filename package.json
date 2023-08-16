@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@apollo/server": "^4.9.1",
+    "@faker-js/faker": "^8.0.2",
     "bcrypt": "^5.1.0",
     "cloudinary": "^1.40.0",
     "cors": "^2.8.5",

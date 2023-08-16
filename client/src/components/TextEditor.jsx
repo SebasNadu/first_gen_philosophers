@@ -9,6 +9,7 @@ import {
   Card,
   Skeleton,
   Checkbox,
+  Switch,
 } from "@nextui-org/react";
 import { useMemo } from "react";
 import { Toaster, toast } from "sonner";
@@ -131,10 +132,14 @@ const TextEditor = () => {
                     </Chip>
                   ))}
               </div>
-              <div className="flex gap-4 ml-auto">
-                <Checkbox radius="full" onClick={publicArticleHandler}>
-                  Public?
-                </Checkbox>
+              <div className="flex items-center gap-4 ml-auto">
+                <p>Public?</p>
+                <Switch
+                  defaultUnselected
+                  aria-label="Public?"
+                  onClick={publicArticleHandler}
+                  color="success"
+                />
                 <Button
                   radius="full"
                   className="bg-gradient-to-tr from-cyan-500 to-lime-400 text-white shadow-lg"
