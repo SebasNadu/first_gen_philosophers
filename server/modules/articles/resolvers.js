@@ -58,27 +58,50 @@ export const articleResolver = {
 
     getTopArticlesByLikes: async (_, { total }) => {
       try {
-        let query = Article.aggregate([
-          {
-            $addFields: {
-              likesCount: { $size: "$likes" },
-            },
-          },
-          {
-            $sort: { likesCount: -1 },
-          },
-        ]);
-
-        if (total) {
-          query = query.limit(total);
+        // let query = Article.aggregate([
+        //   {
+        //     $addFields: {
+        //       likesCount: { $size: "$likes" },
+        //     },
+        //   },
+        //   {
+        //     $sort: { likesCount: -1 },
+        //   },
+        // ]);
+        //
+        // if (total) {
+        //   query = query.limit(total);
+        // }
+        //
+        // const popularArticlesByLikes = await query.exec();
+        // const articlesWithId = popularArticlesByLikes.map((article) => ({
+        //   ...article,
+        //   id: article._id.toString(),
+        // }));
+        // return articlesWithId;
+        if (!total) {
+          const articles = await Article.find()
+            .sort({ likesCount: -1 })
+            .limit(total)
+            .populate("user")
+            .populate({
+              path: "comments",
+              model: "Comment",
+              populate: { path: "user", model: "User" },
+            })
+            .populate({ path: "likes", model: "User" });
+          return articles;
         }
-
-        const popularArticlesByLikes = await query.exec();
-        const articlesWithId = popularArticlesByLikes.map((article) => ({
-          ...article,
-          id: article._id.toString(),
-        }));
-        return articlesWithId;
+        const articles = await Article.find()
+          .sort({ likesCount: -1 })
+          .populate("user")
+          .populate({
+            path: "comments",
+            model: "Comment",
+            populate: { path: "user", model: "User" },
+          })
+          .populate({ path: "likes", model: "User" });
+        return articles;
       } catch (error) {
         throw new Error("Error while getting popular articles by likes");
       }
@@ -86,27 +109,51 @@ export const articleResolver = {
 
     getTopArticlesByComments: async (_, { total }) => {
       try {
-        let query = Article.aggregate([
-          {
-            $addFields: {
-              commentsCount: { $size: "$comments" },
-            },
-          },
-          {
-            $sort: { commentsCount: -1 },
-          },
-        ]);
+        // let query = Article.aggregate([
+        //   {
+        //     $addFields: {
+        //       commentsCount: { $size: "$comments" },
+        //     },
+        //   },
+        //   {
+        //     $sort: { commentsCount: -1 },
+        //   },
+        // ]);
+        //
+        // if (total) {
+        //   query = query.limit(total);
+        // }
+        //
+        // const popularArticlesByComments = await query.exec();
+        // const articlesWithId = popularArticlesByComments.map((article) => ({
+        //   ...article,
+        //   id: article._id.toString(),
+        // }));
+        // return articlesWithId;
+        if (!total) {
+          const articles = await Article.find()
+            .sort({ commentsCount: -1 })
+            .limit(total)
+            .populate("user")
+            .populate({
+              path: "comments",
+              model: "Comment",
+              populate: { path: "user", model: "User" },
+            })
+            .populate({ path: "likes", model: "User" });
 
-        if (total) {
-          query = query.limit(total);
+          return articles;
         }
-
-        const popularArticlesByComments = await query.exec();
-        const articlesWithId = popularArticlesByComments.map((article) => ({
-          ...article,
-          id: article._id.toString(),
-        }));
-        return articlesWithId;
+        const articles = await Article.find()
+          .sort({ commentsCount: -1 })
+          .populate("user")
+          .populate({
+            path: "comments",
+            model: "Comment",
+            populate: { path: "user", model: "User" },
+          })
+          .populate({ path: "likes", model: "User" });
+        return articles;
       } catch (error) {
         throw new Error("Error while getting popular articles by comments");
       }
@@ -320,6 +367,7 @@ export const articleResolver = {
         }
         // Add the user to the likes array
         article.likes.push(currentUser);
+        article.likesCount = article.likesCount + 1;
         await article.save();
         return true;
       } catch (error) {
@@ -357,6 +405,7 @@ export const articleResolver = {
         }
         // Remove the user from the likes array
         article.likes.pull(currentUser);
+        article.likesCount = article.likesCount - 1;
         await article.save();
         return true;
       } catch (error) {

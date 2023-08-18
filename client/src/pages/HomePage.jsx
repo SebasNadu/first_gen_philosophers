@@ -1,90 +1,95 @@
+import { Spinner } from "@nextui-org/react";
+
 import PageContent from "../components/PageContent";
 import CardsCarousel from "../components/CardsCarousel";
 import Banner42 from "../components/Banner";
+import { useTopsLoader } from "../loaders/loadTopsData";
 
 const list = [
   {
     title: "Orange",
-    img: "/images/fruit-1.jpeg",
-    author: "Radu",
+    user: { firstName: "Radu" },
   },
   {
     title: "Tangerine",
-    img: "/images/fruit-2.jpeg",
-    author: "Arne",
+    user: { firstName: "Arne" },
   },
   {
     title: "Raspberry",
-    img: "/images/fruit-3.jpeg",
-    author: "Miriam",
+    user: { firstName: "Miriam" },
   },
   {
     title: "Lemon",
-    img: "/images/fruit-4.jpeg",
-    author: "Ramesh",
+    user: { firstName: "Ramesh" },
   },
   {
     title: "Avocado",
-    img: "/images/fruit-5.jpeg",
-    author: "Hongbae",
+    user: { firstName: "Hongbae" },
   },
   {
     title: "Fox",
-    img: "/images/fruit-6.jpeg",
-    author: "Roka",
+    user: { firstName: "Roka" },
   },
   {
     title: "Banana",
-    img: "/images/fruit-7.jpeg",
-    author: "Taka",
+    user: { firstName: "Taka" },
   },
   {
     title: "Watermelon",
-    img: "/images/fruit-8.jpeg",
-    author: "Attila",
+    user: { firstName: "Attila" },
   },
   {
     title: "Avocado",
-    img: "/images/fruit-5.jpeg",
-    author: "Simona",
+    user: { firstName: "Simona" },
   },
   {
     title: "Lemon 2",
-    img: "/images/fruit-6.jpeg",
-    author: "Sebastian",
+    user: { firstName: "Sebastian" },
   },
   {
     title: "Banana",
-    img: "/images/fruit-7.jpeg",
-    author: "Arthur",
+    user: { firstName: "Arthur" },
   },
   {
     title: "Watermelon",
-    img: "/images/fruit-8.jpeg",
-    author: "Billy",
+    user: { firstName: "Billy" },
   },
 ];
 
-export default function HomePage() {
+function HomePage() {
   const pageTitle = "Welcome to #FirstGenPhilosophers!";
   const formattedTitle = pageTitle
     .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
+
+  const { byLikes, byComments, loading, error } = useTopsLoader();
+
   return (
     <>
       <Banner42 title={formattedTitle} />
       <PageContent>
-        <h2>Top Best Articles</h2>
-        <CardsCarousel list={list} />
-        <h2>Top Popular Articles</h2>
-        <CardsCarousel list={list} />
-        <h2>Top Authors</h2>
-        <CardsCarousel list={list} />
-        <h1 className="page-title">
-          Welcome to <span className="title-text">#FirstGenPhilosophers!</span>
-        </h1>
+        {!loading && !error ? (
+          <>
+            <h2>Top Best Articles</h2>
+            <CardsCarousel data={byLikes} />
+            <h2>Top Popular Articles</h2>
+            <CardsCarousel data={byComments} />
+            <h2>Top Authors</h2>
+            <CardsCarousel data={list} />
+            <h1 className="page-title">
+              Welcome to{" "}
+              <span className="title-text">#FirstGenPhilosophers!</span>
+            </h1>
+          </>
+        ) : (
+          <div className="flex justify-center mx-auto">
+            <Spinner label="loading" color="success" labelColor="success" />
+          </div>
+        )}
       </PageContent>
     </>
   );
 }
+
+export default HomePage;

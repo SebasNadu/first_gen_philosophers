@@ -1,10 +1,11 @@
 import PageContent from "../components/PageContent";
+import AuthForm from "../components/AuthForm";
 
 const AuthenticationPage = () => {
   return (
     <>
-      <PageContent title={"Authentication Page"}>
-        <p>Content</p>
+      <PageContent title={"Authentication"}>
+        <AuthForm />
       </PageContent>
     </>
   );

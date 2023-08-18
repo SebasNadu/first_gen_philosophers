@@ -26,31 +26,17 @@ const generateRandomUser = () => {
 };
 
 // generate articles
-const generateRandomArticle = (userId) => {
+const generateRandomArticle = (user) => {
   return {
     title: faker.lorem.sentence(),
     body: faker.lorem.paragraphs(3),
     tags: [faker.lorem.word(), faker.lorem.word()],
     picture: faker.image.urlLoremFlickr(),
     active: true,
-    user: userId,
+    user,
   };
 };
 
-// const test = async () => {
-//   try {
-//     const user = await User.create(generateRandomUser());
-//     const article = await Article.create(generateRandomArticle(user.id));
-//   } catch (error) {
-//     console.log(error);
-//   } finally {
-//     mongoose.connection.close();
-//   }
-// };
-//
-// test();
-
-// seed database
 const seedDatabase = async () => {
   try {
     // creating 10 users
@@ -63,7 +49,7 @@ const seedDatabase = async () => {
     // creating 2 articles for each user
     for (const user of users) {
       for (let i = 0; i < 2; i++) {
-        await Article.create(generateRandomArticle(user._id));
+        await Article.create(generateRandomArticle(user));
       }
     }
 

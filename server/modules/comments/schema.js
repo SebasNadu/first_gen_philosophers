@@ -48,7 +48,9 @@ export const commentSchema = gql`
     picture: String
     user: User!
     likes: [User]
+    countLikes: Int
     comments: [Comment]
+    countComments: Int
     createdAt: DateTime!
     updatedAt: DateTime!
   }

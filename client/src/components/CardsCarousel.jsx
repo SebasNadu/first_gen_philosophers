@@ -30,8 +30,6 @@ const CardsCarousel = (props) => {
     },
   };
 
-  const list = props.list;
-
   return (
     <>
       <Carousel
@@ -62,9 +60,19 @@ const CardsCarousel = (props) => {
         slidesToSlide={1}
         swipeable
       >
-        {list.map((item, index) => (
+        {props.data.map((item, index) => (
           <div className="m-4" key={index}>
-            <Card42 title={item.title} img={item.img} author={item.author} />
+            <Card42
+              title={item.title}
+              picture={item.picture}
+              user={item.user}
+              id={item.id}
+              body={item.body}
+              active={item.active}
+              likes={item.likes}
+              comments={item.comments}
+              createdAt={item.createdAt}
+            />
           </div>
         ))}
       </Carousel>

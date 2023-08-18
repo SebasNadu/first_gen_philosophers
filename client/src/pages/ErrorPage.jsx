@@ -22,7 +22,7 @@ function ErrorPage() {
     <>
       <Navbar42 />
       <PageContent title={title}>
-        <p>{message}</p>
+        <p className="text-center">{message}</p>
       </PageContent>
     </>
   );

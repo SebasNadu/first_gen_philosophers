@@ -1,4 +1,3 @@
-// import ExamplePage from "./pages/example";
 import "./App.css";
 import CreateArticlePage from "./pages/CreateArticlePage";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
@@ -10,6 +9,7 @@ import DiscoverPage from "./pages/DiscoverPage";
 import ArticleDetailPage from "./pages/ArticleDetailPage";
 import EditArticlePage from "./pages/EditArticlePage";
 import ProfilePage from "./pages/ProfilePage";
+// import useAuthAction from "./actions/authAction.js";
 
 const router = createBrowserRouter([
   {
@@ -23,7 +23,7 @@ const router = createBrowserRouter([
       {
         path: "auth",
         element: <AuthenticationPage />,
-        // action: authAction,
+        // action: useAuthAction,
       },
       {
         path: "discover",

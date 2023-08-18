@@ -127,38 +127,6 @@ export const userResolver = {
         error.code = 422;
         throw error;
       }
-      // let picture;
-      // if (
-      //   profilePicture !== undefined ||
-      //   profilePicture !== "" ||
-      //   profilePicture !== null
-      // ) {
-      //   const { createReadStream, mimetype } = await profilePicture;
-      //
-      //   if (mimetype !== "image/jpeg" && mimetype !== "image/png") {
-      //     const error = new Error("File type is not supported");
-      //     error.code = 422;
-      //     throw error;
-      //   }
-      //
-      //   const uploadStream = cloudinary.uploader.upload_stream({
-      //     folder: "profile_pictures",
-      //   });
-      //
-      //   const fileStream = createReadStream();
-      //   fileStream.pipe(uploadStream);
-      //   const result = await new Promise((resolve, reject) => {
-      //     uploadStream.on("error", (error) => {
-      //       reject(error);
-      //     });
-      //     uploadStream.on("finish", (result) => {
-      //       resolve(result);
-      //     });
-      //   });
-      //   picture = result.secure_url;
-      // } else {
-      //   picture = profilePicture;
-      // }
       const user = new User({
         email,
         password,
@@ -169,7 +137,21 @@ export const userResolver = {
         story,
       });
       const savedUser = await user.save();
-      return savedUser;
+      if (!savedUser) {
+        const error = new Error("An error occurred while creating the user");
+        error.code = 500;
+        throw error;
+      }
+
+      const token = jwt.sign(
+        {
+          userId: savedUser.id,
+          email: savedUser.email,
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRES_IN }
+      );
+      return { token, userId: user.id };
     },
 
     updateUser: async (_, { userInputUpdate }, contextValue) => {
@@ -203,31 +185,35 @@ export const userResolver = {
         updatedFields.active = active;
       }
       if (profilePicture !== undefined && profilePicture !== "") {
-        if (!profilePicture.startsWith("/images/")) {
-          // const { createReadStream, mimetype } = await profilePicture;
-          //
-          // if (mimetype !== "image/jpeg" && mimetype !== "image/png") {
-          //   const error = new Error("File type is not supported");
-          //   error.code = 422;
-          //   throw error;
-          // }
-          //
-          // const uploadStream = cloudinary.uploader.upload_stream({
-          //   folder: "profile_pictures",
-          // });
-          //
-          // const fileStream = createReadStream();
-          // fileStream.pipe(uploadStream);
-          // const result = await new Promise((resolve, reject) => {
-          //   uploadStream.on("error", (error) => {
-          //     reject(error);
-          //   });
-          //   uploadStream.on("finish", (result) => {
-          //     resolve(result);
-          //   });
-          // });
-          // updatedFields.profilePicture = result.secure_url;
+        if (!profilePicture.startsWith("http://localhost:3000")) {
           updatedFields.profilePicture = profilePicture;
+        } else {
+          try {
+            const response = await fetch(profilePicture);
+            if (!response.ok) {
+              throw new Error("Failed to fetch image");
+            }
+
+            const imageStream = response.body;
+            const result = await new Promise((resolve, reject) => {
+              const uploadStream = cloudinary.uploader.upload_stream(
+                { folder: "article-pictures" },
+                (error, result) => {
+                  if (error) {
+                    reject(error);
+                  }
+                  resolve(result);
+                }
+              );
+
+              imageStream.pipe(uploadStream);
+            });
+
+            updatedFields.picture = result.secure_url;
+          } catch (error) {
+            console.error("Error while uploading image:", error);
+            throw new Error("Error while uploading image");
+          }
         }
       }
       if (story !== undefined && story !== "") {

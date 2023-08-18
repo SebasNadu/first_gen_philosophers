@@ -12,10 +12,12 @@ const articleSchema = mongoose.Schema(
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
       default: [],
     },
+    countLikes: { type: Number, default: 0 },
     comments: {
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
       default: [],
     },
+    countComments: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

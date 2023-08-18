@@ -101,6 +101,7 @@ export const commentResolver = {
       const createdComment = await comment.save();
       // add comment to article
       article.comments.push(createdComment);
+      article.countComments = article.comments.length;
       await article.save();
       return createdComment;
     },

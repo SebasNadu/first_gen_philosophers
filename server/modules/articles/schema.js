@@ -21,9 +21,9 @@ export const articleSchema = gql`
   }
 
   type User {
-    id: ID!
-    email: String!
-    password: String!
+    id: ID
+    email: String
+    password: String
     firstName: String
     lastName: String
     active: Boolean
@@ -31,32 +31,34 @@ export const articleSchema = gql`
     story: String
     followers: [User]
     following: [User]
-    createdAt: DateTime!
-    updatedAt: DateTime!
+    createdAt: DateTime
+    updatedAt: DateTime
   }
 
   type Comment {
-    id: ID!
-    content: String!
-    user: User!
-    article: Article!
+    id: ID
+    content: String
+    user: User
+    article: Article
     likes: [User]
-    createdAt: DateTime!
-    updatedAt: DateTime!
+    createdAt: DateTime
+    updatedAt: DateTime
   }
 
   type Article {
-    id: ID!
-    title: String!
-    body: String!
+    id: ID
+    title: String
+    body: String
     tags: [String]
     picture: String
-    active: Boolean!
-    user: User!
+    active: Boolean
+    user: User
     likes: [User]
+    countLikes: Int
     comments: [Comment]
-    createdAt: DateTime!
-    updatedAt: DateTime!
+    countComments: Int
+    createdAt: DateTime
+    updatedAt: DateTime
   }
 
   input ArticleInputData {
