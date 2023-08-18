@@ -1,5 +1,5 @@
 import { Form, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useMutation } from "@apollo/client";
 import { CREATE_USER, LOGIN_USER } from "../graphql/mutations.js";
 
@@ -10,7 +10,45 @@ import { LockIcon } from "./LockIcon.jsx";
 function AuthForm() {
   const [isLogin, setIsLogin] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formErrors, setFormErrors] = useState({});
+  const [emailValue, setEmailValue] = useState("");
+  const [passwordValue, setPasswordValue] = useState("");
+  const [firstNameValue, setFirstNameValue] = useState("");
+  const [lastNameValue, setLastNameValue] = useState("");
+
+  const validateEmail = (email) =>
+    /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email);
+  const validatePassword = (password) => password.length >= 5;
+  const validateFirstName = (firstName) => firstName.length >= 3;
+  const validateLastName = (lastName) => lastName.length >= 3;
+
+  const validationState = useMemo(() => {
+    return {
+      email:
+        emailValue === ""
+          ? undefined
+          : validateEmail(emailValue)
+          ? "valid"
+          : "invalid",
+      password:
+        passwordValue === ""
+          ? undefined
+          : validatePassword(passwordValue)
+          ? "valid"
+          : "invalid",
+      firstName:
+        firstNameValue === ""
+          ? undefined
+          : validateFirstName(firstNameValue)
+          ? "valid"
+          : "invalid",
+      lastName:
+        lastNameValue === ""
+          ? undefined
+          : validateLastName(lastNameValue)
+          ? "valid"
+          : "invalid",
+    };
+  }, [emailValue, passwordValue, firstNameValue, lastNameValue]);
 
   const navigate = useNavigate();
 
@@ -36,6 +74,9 @@ function AuthForm() {
       const response = await performMutation({
         variables: authData,
       });
+      if (!response) {
+        throw new Error("No response");
+      }
 
       const token = !isLogin
         ? response.data.createUser.token
@@ -49,24 +90,11 @@ function AuthForm() {
       const expiration = new Date();
       expiration.setHours(expiration.getHours() + 5);
       localStorage.setItem("expiration", expiration.toISOString());
-
-      navigate("/");
-    } catch (err) {
-      console.error(err);
-      // Handle specific error cases here
-      if (err.graphQLErrors && err.graphQLErrors.length > 0) {
-        const validationErrors = {};
-        err.graphQLErrors.forEach((error) => {
-          if (error.extensions && error.extensions.exception.validationErrors) {
-            Object.entries(error.extensions.exception.validationErrors).forEach(
-              ([field, messages]) => {
-                validationErrors[field] = messages.join(", ");
-              }
-            );
-          }
-        });
-        setFormErrors(validationErrors);
+      if (!error) {
+        navigate(-1);
       }
+    } catch (err) {
+      console.log(err);
     } finally {
       setIsSubmitting(false);
     }
@@ -80,28 +108,14 @@ function AuthForm() {
     <div className="flex justify-center items-center flex-col w-full">
       <Card
         className={`max-w-full ${
-          isLogin ? "w-[360px] h-[360px]" : "w-[360px] h-[440px]"
+          isLogin ? "w-[360px] h-[340px]" : "w-[360px] h-[440px]"
         }`}
       >
         <CardBody className="overflow-hidden">
           <Form method="post" className="" onSubmit={handleSubmit}>
-            {Object.keys(formErrors).length > 0 && (
-              <div className="text-red-500">
-                {Object.values(formErrors).map((errorMsg, index) => (
-                  <p key={index}>{errorMsg}</p>
-                ))}
-              </div>
-            )}
             {error && (
               <div className="text-red-500">
                 {error.message} {/* Display the error message */}
-              </div>
-            )}
-            {Object.keys(formErrors).length > 0 && (
-              <div className="text-red-500">
-                {Object.values(formErrors).map((errorMsg, index) => (
-                  <p key={index}>{errorMsg}</p>
-                ))}
               </div>
             )}
             <h2 className="mb-2">{isLogin ? "Log in" : "Create user"}</h2>
@@ -122,6 +136,22 @@ function AuthForm() {
                   type="email"
                   name="email"
                   required
+                  value={emailValue}
+                  color={
+                    !validationState.email
+                      ? ""
+                      : validationState.email === "invalid"
+                      ? "danger"
+                      : "success"
+                  }
+                  errorMessage={
+                    !validationState.email
+                      ? ""
+                      : validationState.email === "invalid" &&
+                        "Please enter a valid email"
+                  }
+                  validationState={validationState}
+                  onValueChange={setEmailValue}
                 />
                 <label htmlFor="password" hidden>
                   Password
@@ -137,6 +167,22 @@ function AuthForm() {
                   name="password"
                   type="password"
                   required
+                  value={passwordValue}
+                  color={
+                    !validationState.password
+                      ? ""
+                      : validationState.password === "invalid"
+                      ? "danger"
+                      : "success"
+                  }
+                  errorMessage={
+                    !validationState.password
+                      ? ""
+                      : validationState.password === "invalid" &&
+                        "Please enter a valid email"
+                  }
+                  validationState={validationState}
+                  onValueChange={setPasswordValue}
                 />
               </div>
             ) : (
@@ -149,6 +195,22 @@ function AuthForm() {
                   id="firstName"
                   name="firstName"
                   required
+                  value={firstNameValue}
+                  color={
+                    !validationState.firstName
+                      ? ""
+                      : validationState.firstName === "invalid"
+                      ? "danger"
+                      : "success"
+                  }
+                  errorMessage={
+                    !validationState.firstName
+                      ? ""
+                      : validationState.firstName === "invalid" &&
+                        "Please enter a valid email"
+                  }
+                  validationState={validationState}
+                  onValueChange={setFirstNameValue}
                 />
                 <Input
                   isRequired
@@ -158,6 +220,22 @@ function AuthForm() {
                   id="lastName"
                   name="lastName"
                   required
+                  value={lastNameValue}
+                  color={
+                    !validationState.lastName
+                      ? ""
+                      : validationState.lastName === "invalid"
+                      ? "danger"
+                      : "success"
+                  }
+                  errorMessage={
+                    !validationState.lastName
+                      ? ""
+                      : validationState.lastName === "invalid" &&
+                        "Please enter a valid email"
+                  }
+                  validationState={validationState}
+                  onValueChange={setLastNameValue}
                 />
                 <Input
                   isRequired
@@ -167,6 +245,22 @@ function AuthForm() {
                   id="email"
                   name="email"
                   required
+                  value={passwordValue}
+                  color={
+                    !validationState.password
+                      ? ""
+                      : validationState.password === "invalid"
+                      ? "danger"
+                      : "success"
+                  }
+                  errorMessage={
+                    !validationState.password
+                      ? ""
+                      : validationState.password === "invalid" &&
+                        "Please enter a valid email"
+                  }
+                  validationState={validationState}
+                  onValueChange={setPasswordValue}
                 />
                 <Input
                   isRequired
@@ -176,6 +270,22 @@ function AuthForm() {
                   id="password"
                   name="password"
                   required
+                  value={passwordValue}
+                  color={
+                    !validationState.password
+                      ? ""
+                      : validationState.password === "invalid"
+                      ? "danger"
+                      : "success"
+                  }
+                  errorMessage={
+                    !validationState.password
+                      ? ""
+                      : validationState.password === "invalid" &&
+                        "Please enter a valid email"
+                  }
+                  validationState={validationState}
+                  onValueChange={setPasswordValue}
                 />
               </div>
             )}

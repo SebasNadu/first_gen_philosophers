@@ -1,3 +1,5 @@
+import { useRouteLoaderData, useNavigate } from "react-router-dom";
+import { useQuery } from "@apollo/client";
 import {
   Navbar,
   NavbarBrand,
@@ -9,13 +11,32 @@ import {
   Dropdown,
   DropdownMenu,
   Avatar,
+  Button,
 } from "@nextui-org/react";
 import { AcmeLogo } from "./FGP_Logo.jsx";
 import { SearchIcon } from "./SearchIcon.jsx";
 import { Link, NavLink } from "react-router-dom";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
+import { GET_USER_BY_ID } from "../graphql/queries";
 
 export default function Navbar42() {
+  const { token, userId } = useRouteLoaderData("root");
+
+  const { data, loading, error } = useQuery(GET_USER_BY_ID, {
+    variables: { getUserByIdId: userId },
+    skip: !token || !userId,
+  });
+
+  const navigate = useNavigate();
+
+  if (error) {
+    navigate("/auth");
+  }
+
+  const loginHandler = () => {
+    navigate("/auth");
+  };
+
   return (
     <Navbar
       maxWidth="2xl"
@@ -52,47 +73,60 @@ export default function Navbar42() {
           type="search"
         />
 
-        <NavbarItem className="list">
-          <NavLink to="articles/create">
-            <PlusCircleIcon className="w-8 h-8 hover:text-teal-500 active:text-green-300" />
-          </NavLink>
-        </NavbarItem>
-        <Dropdown placement="bottom-end">
-          <DropdownTrigger>
-            <Avatar
-              isBordered
-              as="button"
-              className="transition-transform"
-              color="success"
-              name="Jason Hughes"
-              size="sm"
-              src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
-            />
-          </DropdownTrigger>
-          <DropdownMenu aria-label="Profile Actions" variant="flat">
-            <DropdownItem key="profile" className="h-14 gap-2">
-              <Link to="profile" className="hover:no-underline">
-                <div className="min-w-full min-h-full">
-                  <p className="font-semibold">Signed in as</p>
-                  <p className="font-semibold">zoey@example.com</p>
-                </div>
-              </Link>
-            </DropdownItem>
-            <DropdownItem key="MyArticles">My Articles</DropdownItem>
-            <DropdownItem key="like">What I Like</DropdownItem>
-            <DropdownItem key="discover">
-              <Link to="discover" className="hover:no-underline">
-                <div className="min-w-full min-h-full">
-                  <p>Discover</p>
-                </div>
-              </Link>
-            </DropdownItem>
-            <DropdownItem key="leaderboard">Leaderboard</DropdownItem>
-            <DropdownItem key="logout" color="danger">
-              Log Out
-            </DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
+        {!data && (
+          <Button
+            radius="full"
+            className="bg-gradient-to-tr from-cyan-500 to-lime-400 text-white shadow-lg"
+            onClick={loginHandler}
+          >
+            Log In
+          </Button>
+        )}
+        {data && (
+          <>
+            <NavbarItem className="list">
+              <NavLink to="articles/create">
+                <PlusCircleIcon className="w-8 h-8 hover:text-teal-500 active:text-green-300" />
+              </NavLink>
+            </NavbarItem>
+            <Dropdown placement="bottom-end">
+              <DropdownTrigger>
+                <Avatar
+                  isBordered
+                  as="button"
+                  className="transition-transform"
+                  color="success"
+                  name={data.getUserById.firstName}
+                  size="sm"
+                  src={data.getUserById.profilePicture}
+                />
+              </DropdownTrigger>
+              <DropdownMenu aria-label="Profile Actions" variant="flat">
+                <DropdownItem key="profile" className="h-14 gap-2">
+                  <Link to="profile" className="hover:no-underline">
+                    <div className="min-w-full min-h-full">
+                      <p className="font-semibold">Signed in as</p>
+                      <p className="font-semibold">zoey@example.com</p>
+                    </div>
+                  </Link>
+                </DropdownItem>
+                <DropdownItem key="MyArticles">My Articles</DropdownItem>
+                <DropdownItem key="like">What I Like</DropdownItem>
+                <DropdownItem key="discover">
+                  <Link to="discover" className="hover:no-underline">
+                    <div className="min-w-full min-h-full">
+                      <p>Discover</p>
+                    </div>
+                  </Link>
+                </DropdownItem>
+                <DropdownItem key="leaderboard">Leaderboard</DropdownItem>
+                <DropdownItem key="logout" color="danger">
+                  Log Out
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          </>
+        )}
       </NavbarContent>
     </Navbar>
   );

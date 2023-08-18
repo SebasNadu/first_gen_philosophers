@@ -9,21 +9,21 @@ import DiscoverPage from "./pages/DiscoverPage";
 import ArticleDetailPage from "./pages/ArticleDetailPage";
 import EditArticlePage from "./pages/EditArticlePage";
 import ProfilePage from "./pages/ProfilePage";
-// import useAuthAction from "./actions/authAction.js";
+import { action as logoutAction } from "./pages/Logout";
+import { tokenLoader } from "./loaders/auth";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout />,
     errorElement: <ErrorPage />,
+    loader: tokenLoader,
     id: "root",
-    // loader: tokenLoader,
     children: [
       { index: true, element: <HomePage /> },
       {
         path: "auth",
         element: <AuthenticationPage />,
-        // action: useAuthAction,
       },
       {
         path: "discover",
@@ -71,7 +71,7 @@ const router = createBrowserRouter([
       },
       {
         path: "logout",
-        // action: logoutAction,
+        action: logoutAction,
       },
     ],
   },

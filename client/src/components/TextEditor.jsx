@@ -8,14 +8,12 @@ import {
   Divider,
   Card,
   Skeleton,
-  Checkbox,
   Switch,
 } from "@nextui-org/react";
 import { useMemo } from "react";
 import { Toaster, toast } from "sonner";
 import { useMutation } from "@apollo/client";
 import { GENERATE_PICTURES } from "../graphql/mutations";
-import { Suspense } from "react";
 
 const TextEditor = () => {
   const [text, setText] = useState("");

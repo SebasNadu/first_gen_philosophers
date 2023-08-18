@@ -53,3 +53,27 @@ export const GET_TOPS_BY_COMMENTS = gql`
     }
   }
 `;
+
+export const GET_USER_BY_ID = gql`
+  query getUserById($getUserByIdId: ID!) {
+    getUserById(id: $getUserByIdId) {
+      id
+      active
+      createdAt
+      email
+      firstName
+      followers {
+        id
+        profilePicture
+      }
+      following {
+        id
+        profilePicture
+      }
+      lastName
+      profilePicture
+      story
+      updatedAt
+    }
+  }
+`;
