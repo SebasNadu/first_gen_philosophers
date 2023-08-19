@@ -93,8 +93,14 @@ export const GET_ARTICLE_BY_ID = gql`
       user {
         id
         firstName
-        lastName
         profilePicture
+        lastName
+        followers {
+          id
+        }
+        following {
+          id
+        }
       }
       comments {
         user {
@@ -116,6 +122,8 @@ export const GET_ARTICLE_BY_ID = gql`
         id
         profilePicture
       }
+      countLikes
+      countComments
     }
   }
 `;

@@ -104,9 +104,17 @@ export default function Card42(props) {
               <Avatar src="https://i.pravatar.cc/150?u=a04258114e29026708c" />
             </AvatarGroup>
           )}
-          <Button className="text-tiny" color="success" radius="full" size="sm">
-            Read me
-          </Button>
+
+          <Link to={`/articles/${id}`}>
+            <Button
+              className="text-tiny"
+              color="success"
+              radius="full"
+              size="sm"
+            >
+              Read me
+            </Button>
+          </Link>
         </CardFooter>
       </Card>
       <Modal backdrop={"blur"} isOpen={isOpen} onClose={onClose}>
