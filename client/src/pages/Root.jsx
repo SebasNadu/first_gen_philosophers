@@ -5,7 +5,7 @@ import Navbar42 from "../components/Navbar";
 import { getTokenDuration } from "../loaders/auth";
 
 function RootLayout() {
-  const token = useLoaderData();
+  const { token, userId } = useLoaderData();
   const submit = useSubmit();
 
   useEffect(() => {
@@ -13,10 +13,10 @@ function RootLayout() {
       return;
     }
 
-    if (token === "EXPIRED") {
-      submit(null, { action: "/logout", method: "post" });
-      return;
-    }
+    // if (token === "EXPIRED") {
+    //   submit(null, { action: "/logout", method: "post" });
+    //   return;
+    // }
 
     const tokenDuration = getTokenDuration();
 

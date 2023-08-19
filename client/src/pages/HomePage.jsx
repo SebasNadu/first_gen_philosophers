@@ -71,11 +71,11 @@ function HomePage() {
       <PageContent>
         {!loading && !error ? (
           <>
-            <h2>Top Best Articles</h2>
+            <h2>Best Articles</h2>
             <CardsCarousel data={byLikes} />
-            <h2>Top Popular Articles</h2>
+            <h2>Most Popular Articles</h2>
             <CardsCarousel data={byComments} />
-            <h2>Top Authors</h2>
+            <h2>Best Authors</h2>
             <CardsCarousel data={list} />
             <h1 className="page-title">
               Welcome to{" "}

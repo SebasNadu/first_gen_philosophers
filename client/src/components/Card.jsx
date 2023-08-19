@@ -12,13 +12,24 @@ import {
   useDisclosure,
   Avatar,
   AvatarGroup,
+  Chip,
 } from "@nextui-org/react";
 import { Link } from "react-router-dom";
 import fakeImg from "../assets/images/home_banner.jpg";
 
 export default function Card42(props) {
-  const { title, picture, id, body, active, user, likes, comments, createdAt } =
-    props;
+  const {
+    title,
+    picture,
+    id,
+    body,
+    active,
+    user,
+    likes,
+    comments,
+    createdAt,
+    tags,
+  } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   let newCreatedAt;
@@ -54,13 +65,19 @@ export default function Card42(props) {
           </div>
           <h4 className="text-black font-medium text-2xl">{title}</h4>
         </CardHeader>
-        <Image
-          removeWrapper
-          alt="Card example background"
-          className="z-0 w-full h-full scale-125 -translate-y-6 object-cover cursor-pointer"
-          src={picture ? picture : fakeImg}
+        <div
+          className="relative h-full w-full cursor-pointer"
           onClick={handleOpen}
-        />
+        >
+          <Image
+            isBlurred
+            removeWrapper
+            alt="Card example background"
+            className="z-0 w-full h-full scale-125 -translate-y-6 object-cover"
+            src={picture ? picture : fakeImg}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[rgba(255,255,255,0.8)] to-[rgba(0,0,0,0.2)]"></div>
+        </div>
         <CardFooter className="absolute bg-white/30 bottom-0 border-t-1 border-zinc-100/50 z-10 justify-between">
           {likes ? (
             <AvatarGroup isBordered max={3} size="sm">
@@ -113,6 +130,20 @@ export default function Card42(props) {
                 </div>
                 <p className="ml-auto px-8">On {newCreatedAt}</p>
               </div>
+              {tags && (
+                <div className="flex p-2 mx-4 gap-2">
+                  {tags.map((tag, index) => (
+                    <Chip
+                      key={index}
+                      radius="full"
+                      color="success"
+                      variant="bordered"
+                    >
+                      {tag}
+                    </Chip>
+                  ))}
+                </div>
+              )}
               <ModalBody>
                 <p>{truncateText(body, 50)}</p>
               </ModalBody>
@@ -120,7 +151,7 @@ export default function Card42(props) {
                 <Button color="danger" variant="light" onClick={onClose}>
                   Close
                 </Button>
-                <Link to={`/article/${id}`}>
+                <Link to={`/articles/${id}`}>
                   <Button color="success" onPress={onClose}>
                     Read more
                   </Button>

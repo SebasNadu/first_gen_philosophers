@@ -10,27 +10,58 @@ import openai from "../../utils/openai.js";
 export const articleResolver = {
   Query: {
     getArticleById: async (_, { id }) => {
-      return Article.findById(id).catch((error) => {
+      try {
+        const article = await Article.findById(id)
+          .populate("user")
+          .populate({
+            path: "comments",
+            model: "Comment",
+            populate: { path: "user", model: "User" },
+          })
+          .populate({ path: "likes", model: "User" });
+        return article;
+      } catch (error) {
+        error.code = 422;
         throw error;
-      });
+      }
     },
 
     getArticles: async (_, { total }) => {
       if (!total) {
         // If total is not provided, return all articles
-        return Article.find()
-          .sort({ createdAt: -1 })
-          .catch((error) => {
-            throw error;
-          });
+        try {
+          const articles = Article.find()
+            .sort({ createdAt: -1 })
+            .populate("user")
+            .populate({
+              path: "comments",
+              model: "Comment",
+              populate: { path: "user", model: "User" },
+            })
+            .populate({ path: "likes", model: "User" });
+          return articles;
+        } catch (error) {
+          error.code = 422;
+          throw error;
+        }
       }
       // If total is provided, return the number of articles specified by total
-      return Article.find()
-        .sort({ createdAt: -1 })
-        .limit(total)
-        .catch((error) => {
-          throw error;
-        });
+      try {
+        const articles = Article.find()
+          .sort({ createdAt: -1 })
+          .limit(total)
+          .populate("user")
+          .populate({
+            path: "comments",
+            model: "Comment",
+            populate: { path: "user", model: "User" },
+          })
+          .populate({ path: "likes", model: "User" });
+        return articles;
+      } catch (error) {
+        error.code = 422;
+        throw error;
+      }
     },
 
     getArticlesByUser: async (_, { userId, total }) => {
@@ -41,44 +72,43 @@ export const articleResolver = {
       }
       // If total is not provided, return all articles
       if (!total) {
-        return Article.find({ user: userId })
-          .sort({ createdAt: -1 })
-          .catch((error) => {
-            throw error;
-          });
+        try {
+          const article = Article.find({ user: userId })
+            .sort({ createdAt: -1 })
+            .populate("user")
+            .populate({
+              path: "comments",
+              model: "Comment",
+              populate: { path: "user", model: "User" },
+            })
+            .populate({ path: "likes", model: "User" });
+          return article;
+        } catch (error) {
+          error.code = 422;
+          throw error;
+        }
       }
       // If total is provided, return the number of articles specified by total
-      return Article.find({ user: userId })
-        .sort({ createdAt: -1 })
-        .limit(total)
-        .catch((error) => {
-          throw error;
-        });
+      try {
+        const article = Article.find({ user: userId })
+          .sort({ createdAt: -1 })
+          .limit(total)
+          .populate("user")
+          .populate({
+            path: "comments",
+            model: "Comment",
+            populate: { path: "user", model: "User" },
+          })
+          .populate({ path: "likes", model: "User" });
+        return article;
+      } catch (error) {
+        error.code = 422;
+        throw error;
+      }
     },
 
     getTopArticlesByLikes: async (_, { total }) => {
       try {
-        // let query = Article.aggregate([
-        //   {
-        //     $addFields: {
-        //       likesCount: { $size: "$likes" },
-        //     },
-        //   },
-        //   {
-        //     $sort: { likesCount: -1 },
-        //   },
-        // ]);
-        //
-        // if (total) {
-        //   query = query.limit(total);
-        // }
-        //
-        // const popularArticlesByLikes = await query.exec();
-        // const articlesWithId = popularArticlesByLikes.map((article) => ({
-        //   ...article,
-        //   id: article._id.toString(),
-        // }));
-        // return articlesWithId;
         if (!total) {
           const articles = await Article.find()
             .sort({ likesCount: -1 })
@@ -109,27 +139,6 @@ export const articleResolver = {
 
     getTopArticlesByComments: async (_, { total }) => {
       try {
-        // let query = Article.aggregate([
-        //   {
-        //     $addFields: {
-        //       commentsCount: { $size: "$comments" },
-        //     },
-        //   },
-        //   {
-        //     $sort: { commentsCount: -1 },
-        //   },
-        // ]);
-        //
-        // if (total) {
-        //   query = query.limit(total);
-        // }
-        //
-        // const popularArticlesByComments = await query.exec();
-        // const articlesWithId = popularArticlesByComments.map((article) => ({
-        //   ...article,
-        //   id: article._id.toString(),
-        // }));
-        // return articlesWithId;
         if (!total) {
           const articles = await Article.find()
             .sort({ commentsCount: -1 })

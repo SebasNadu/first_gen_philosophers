@@ -23,3 +23,11 @@ export const LOGIN_USER = gql`
     }
   }
 `;
+
+export const CREATE_ARTICLE = gql`
+  mutation Mutation($articleInput: ArticleInputData) {
+    createArticle(articleInput: $articleInput) {
+      id
+    }
+  }
+`;

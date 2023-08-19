@@ -8,6 +8,7 @@ export const GET_TOPS_BY_LIKES = gql`
       id
       body
       active
+      tags
       user {
         id
         firstName
@@ -35,6 +36,7 @@ export const GET_TOPS_BY_COMMENTS = gql`
       id
       body
       active
+      tags
       user {
         id
         firstName
@@ -74,6 +76,46 @@ export const GET_USER_BY_ID = gql`
       profilePicture
       story
       updatedAt
+    }
+  }
+`;
+
+export const GET_ARTICLE_BY_ID = gql`
+  query getArticleById($getArticleByIdId: ID!) {
+    getArticleById(id: $getArticleByIdId) {
+      active
+      body
+      createdAt
+      id
+      picture
+      tags
+      title
+      user {
+        id
+        firstName
+        lastName
+        profilePicture
+      }
+      comments {
+        user {
+          firstName
+          id
+          profilePicture
+        }
+        content
+        createdAt
+        id
+        likes {
+          id
+          profilePicture
+          firstName
+        }
+      }
+      likes {
+        firstName
+        id
+        profilePicture
+      }
     }
   }
 `;

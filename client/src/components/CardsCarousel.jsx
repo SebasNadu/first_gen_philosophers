@@ -72,6 +72,7 @@ const CardsCarousel = (props) => {
               likes={item.likes}
               comments={item.comments}
               createdAt={item.createdAt}
+              tags={item.tags}
             />
           </div>
         ))}

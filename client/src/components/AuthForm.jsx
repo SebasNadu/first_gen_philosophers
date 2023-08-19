@@ -1,4 +1,4 @@
-import { Form, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { useMutation } from "@apollo/client";
 import { CREATE_USER, LOGIN_USER } from "../graphql/mutations.js";
@@ -112,7 +112,7 @@ function AuthForm() {
         }`}
       >
         <CardBody className="overflow-hidden">
-          <Form method="post" className="" onSubmit={handleSubmit}>
+          <form method="post" className="" onSubmit={handleSubmit}>
             {error && (
               <div className="text-red-500">
                 {error.message} {/* Display the error message */}
@@ -323,7 +323,7 @@ function AuthForm() {
                 {isSubmitting ? "Submitting..." : "Save"}
               </Button>
             </div>
-          </Form>
+          </form>
         </CardBody>
       </Card>
     </div>

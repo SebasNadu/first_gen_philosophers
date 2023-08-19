@@ -9,6 +9,7 @@ import DiscoverPage from "./pages/DiscoverPage";
 import ArticleDetailPage from "./pages/ArticleDetailPage";
 import EditArticlePage from "./pages/EditArticlePage";
 import ProfilePage from "./pages/ProfilePage";
+import ArticlesPage from "./pages/ArticlesPage";
 import { action as logoutAction } from "./pages/Logout";
 import { tokenLoader } from "./loaders/auth";
 
@@ -35,13 +36,12 @@ const router = createBrowserRouter([
         children: [
           {
             index: true,
-            // element: <DiscoverPage />,
+            element: <ArticlesPage />,
             // loader: eventsLoader,
           },
           {
             path: ":articleId",
             id: "article-detail",
-            // loader: eventDetailLoader,
             children: [
               {
                 index: true,
