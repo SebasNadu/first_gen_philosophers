@@ -4,9 +4,10 @@ export const GET_TOPS_BY_LIKES = gql`
   query getTopArticlesByLikes($total: Int) {
     getTopArticlesByLikes(total: $total) {
       title
+      abstract
+      body
       picture
       id
-      body
       active
       tags
       user {
@@ -32,9 +33,10 @@ export const GET_TOPS_BY_COMMENTS = gql`
   query getTopArticlesByComments($total: Int) {
     getTopArticlesByComments(total: $total) {
       title
+      abstract
+      body
       picture
       id
-      body
       active
       tags
       user {
@@ -84,12 +86,13 @@ export const GET_ARTICLE_BY_ID = gql`
   query getArticleById($getArticleByIdId: ID!) {
     getArticleById(id: $getArticleByIdId) {
       active
+      title
+      abstract
       body
       createdAt
       id
       picture
       tags
-      title
       user {
         id
         firstName

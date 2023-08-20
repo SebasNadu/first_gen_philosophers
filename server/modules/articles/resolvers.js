@@ -222,8 +222,36 @@ export const articleResolver = {
           throw new Error("Error while uploading image");
         }
       }
+      let abstract = "";
+      try {
+        const resAbstract = await openai.createChatCompletion({
+          model: "gpt-3.5-turbo",
+          messages: [
+            {
+              role: "system",
+              content:
+                "Create an abstract with the content you are provided with",
+            },
+            {
+              role: "user",
+              content: body,
+            },
+          ],
+          temperature: 0,
+          max_tokens: 1024,
+          top_p: 1,
+          frequency_penalty: 0,
+          presence_penalty: 0,
+        });
+        console.log(resAbstract.data.choices[0].message.content);
+        abstract = resAbstract.data.choices[0].message.content;
+      } catch (error) {
+        console.error("Error while creating abstract:", error);
+        throw new Error("Error while creating abstract");
+      }
       const article = new Article({
         title,
+        abstract,
         body,
         tags,
         picture: cloudinaryPictureUrl,
@@ -248,6 +276,34 @@ export const articleResolver = {
       }
       if (body !== undefined && body !== "") {
         updatedFields.body = body;
+        let abstract = "";
+        try {
+          const resAbstract = await openai.createChatCompletion({
+            model: "gpt-3.5-turbo",
+            messages: [
+              {
+                role: "system",
+                content:
+                  "Create an abstract with the content you are provided with",
+              },
+              {
+                role: "user",
+                content: body,
+              },
+            ],
+            temperature: 0,
+            max_tokens: 1024,
+            top_p: 1,
+            frequency_penalty: 0,
+            presence_penalty: 0,
+          });
+          console.log(resAbstract.data.choices[0].message.content);
+          abstract = resAbstract.data.choices[0].message.content;
+        } catch (error) {
+          console.error("Error while creating abstract:", error);
+          throw new Error("Error while creating abstract");
+        }
+        updatedFields.abstract = abstract;
       }
       if (tags !== undefined) {
         updatedFields.tags = tags;

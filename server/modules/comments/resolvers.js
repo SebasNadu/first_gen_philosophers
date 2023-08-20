@@ -164,5 +164,81 @@ export const commentResolver = {
         throw error;
       }
     },
+
+    likeComment: async (_, { id }, contextValue) => {
+      try {
+        if (!contextValue.user) {
+          const error = new Error("Not authenticated");
+          error.code = 401;
+          throw error;
+        }
+        const comment = await Comment.findById(id);
+        if (!comment) {
+          const error = new Error("Comment not found");
+          error.code = 404;
+          throw error;
+        }
+        const currentUser = await User.findById(contextValue.user.userId);
+        if (!currentUser) {
+          const error = new Error("Invalid user");
+          error.code = 401;
+          throw error;
+        }
+        // Check if the user has already liked the Comment
+        if (comment.likes && comment.likes.includes(currentUser.id)) {
+          const error = new Error("Already liked");
+          error.code = 403;
+          throw error;
+        }
+        // Add the user to the likes array
+        comment.likes.push(currentUser);
+        comment.likesCount = comment.likesCount + 1;
+        await comment.save();
+        return true;
+      } catch (error) {
+        if (!error.code) {
+          error.code = 500;
+        }
+        throw error;
+      }
+    },
+
+    unlikeComment: async (_, { id }, contextValue) => {
+      try {
+        if (!contextValue.user) {
+          const error = new Error("Not authenticated");
+          error.code = 401;
+          throw error;
+        }
+        const comment = await Comment.findById(id);
+        if (!comment) {
+          const error = new Error("Comment not found");
+          error.code = 404;
+          throw error;
+        }
+        const currentUser = await User.findById(contextValue.user.userId);
+        if (!currentUser) {
+          const error = new Error("Invalid user");
+          error.code = 401;
+          throw error;
+        }
+        // Check if the user has already liked the comment
+        if (!comment.likes || !comment.likes.includes(currentUser.id)) {
+          const error = new Error("Not liked");
+          error.code = 403;
+          throw error;
+        }
+        // Remove the user from the likes array
+        comment.likes.pull(currentUser);
+        comment.likesCount = comment.likesCount - 1;
+        await comment.save();
+        return true;
+      } catch (error) {
+        if (!error.code) {
+          error.code = 500;
+        }
+        throw error;
+      }
+    },
   },
 };

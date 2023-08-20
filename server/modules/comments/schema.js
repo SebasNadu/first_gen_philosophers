@@ -13,6 +13,8 @@ export const commentSchema = gql`
     createComment(commentInput: CommentInputData): Comment!
     updateComment(id: ID!, content: String!): Comment!
     deleteComment(id: ID!): Boolean
+    likeComment(id: ID!): Boolean
+    unlikeComment(id: ID!): Boolean
   }
 
   type Comment {

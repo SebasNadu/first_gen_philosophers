@@ -64,6 +64,7 @@ const CardsCarousel = (props) => {
           <div className="m-4" key={index}>
             <Card42
               title={item.title}
+              abstract={item.abstract}
               picture={item.picture}
               user={item.user}
               id={item.id}

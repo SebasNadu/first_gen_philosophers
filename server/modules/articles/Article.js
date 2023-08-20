@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const articleSchema = mongoose.Schema(
   {
     title: { type: String, required: true },
+    abstract: { type: String, required: true },
     body: { type: String, required: true },
     tags: { type: [{ type: String, required: true }], default: [] },
     picture: { type: String, required: false },

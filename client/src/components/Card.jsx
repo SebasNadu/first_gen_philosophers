@@ -20,6 +20,7 @@ import fakeImg from "../assets/images/home_banner.jpg";
 export default function Card42(props) {
   const {
     title,
+    abstract,
     picture,
     id,
     body,
@@ -153,7 +154,7 @@ export default function Card42(props) {
                 </div>
               )}
               <ModalBody>
-                <p>{truncateText(body, 50)}</p>
+                <p>{abstract ? abstract : truncateText(body, 50)}</p>
               </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="light" onClick={onClose}>

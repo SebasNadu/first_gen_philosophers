@@ -48,6 +48,7 @@ export const articleSchema = gql`
   type Article {
     id: ID
     title: String
+    abstract: String
     body: String
     tags: [String]
     picture: String
@@ -66,6 +67,6 @@ export const articleSchema = gql`
     body: String!
     tags: [String]
     picture: String
-    active: Boolean
+    active: Boolean!
   }
 `;
