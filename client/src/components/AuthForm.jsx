@@ -1,14 +1,17 @@
-import { useNavigate, redirect } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { useMutation } from "@apollo/client";
 import { CREATE_USER, LOGIN_USER } from "../graphql/mutations.js";
 import { tokenLoader } from "../loaders/auth";
+// import { useDispatch } from "react-redux";
+// import { setUserId, setToken } from "../reducers/auth";
 
 import { Button, Input, Card, CardBody } from "@nextui-org/react";
 import { MailIcon } from "./MailIcon.jsx";
 import { LockIcon } from "./LockIcon.jsx";
 
 function AuthForm() {
+  // const dispatch = useDispatch();
   const [isLogin, setIsLogin] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailValue, setEmailValue] = useState("");
@@ -94,6 +97,9 @@ function AuthForm() {
       const expiration = new Date();
       expiration.setHours(expiration.getHours() + 5);
       localStorage.setItem("expiration", expiration.toISOString());
+      // dispatch(setUserId(userId));
+      // dispatch(setToken(token));
+      tokenLoader();
       navigate("/");
     } catch (err) {
       console.log(err);
@@ -123,9 +129,6 @@ function AuthForm() {
             <h2 className="mb-2">{isLogin ? "Log in" : "Create user"}</h2>
             {isLogin ? (
               <div className="flex flex-col gap-5">
-                <label htmlFor="email" hidden>
-                  Email
-                </label>
                 <Input
                   autoFocus
                   endContent={
@@ -155,9 +158,6 @@ function AuthForm() {
                   validationState={validationState}
                   onValueChange={setEmailValue}
                 />
-                <label htmlFor="password" hidden>
-                  Password
-                </label>
                 <Input
                   endContent={
                     <LockIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />

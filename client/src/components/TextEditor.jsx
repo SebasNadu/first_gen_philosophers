@@ -113,15 +113,25 @@ const TextEditor = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    console.log("handleSubmit");
+    console.log("title", title);
+    console.log("text", text);
+    console.log("tags", tags);
+    console.log("publicArticle", publicArticle);
+    console.log("pictures", pictures[selectedCardIndex]);
+
+    const articleInput = {
+      title,
+      body: text,
+      tags,
+      active: publicArticle,
+      picture: pictures[selectedCardIndex],
+    };
 
     try {
       const response = await createArticle({
         variables: {
-          title,
-          body: text,
-          tags,
-          active: publicArticle,
-          picture: pictures[selectedCardIndex],
+          articleInput,
         },
       });
       if (!response) {
@@ -135,6 +145,7 @@ const TextEditor = () => {
         throw new Error("No response from server");
       }
       toast.success("Article created successfully");
+      console.log(createdArticle);
       navigate(`/articles/${createdArticle.id}`);
     } catch (error) {
       console.error("Error creating article:", error);
@@ -229,7 +240,7 @@ const TextEditor = () => {
                     </svg>
                   }
                 >
-                  Save it!
+                  {loadingArticle ? "..AI Generating Abstract" : "Save it!"}
                 </Button>
               </div>
             </div>
@@ -242,7 +253,7 @@ const TextEditor = () => {
           </div>
           <div className="flex flex-grow-0 p-4 ml-4">
             <Divider orientation="vertical" />
-            <div className="flex flex-col items-center justify-center ml-4 gap-0">
+            <div className="flex flex-col items-center justify-start ml-4 gap-0">
               <h3>Pick your Article picture!</h3>
               {loadingPictures ? (
                 <>
@@ -285,6 +296,29 @@ const TextEditor = () => {
                 radius="full"
                 className="bg-gradient-to-tr from-cyan-500 to-lime-400 text-white shadow-lg my-4"
                 onClick={handleImagesGenerator}
+                isLoading={loadingPictures}
+                spinner={
+                  <svg
+                    className="animate-spin h-5 w-5 text-current"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                }
               >
                 Generate Pictures
               </Button>

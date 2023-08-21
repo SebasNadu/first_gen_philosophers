@@ -4,8 +4,8 @@ import Comment from "../comments/Comment.js";
 import validator from "validator";
 // import fs from "fs";
 // import path from "path";
-import { v2 as cloudinary } from "cloudinary";
 import openai from "../../utils/openai.js";
+import cloudinary from "../../utils/cloudinary.js";
 
 export const articleResolver = {
   Query: {
@@ -508,7 +508,7 @@ export const articleResolver = {
         // const keywords = responseText.data.choices[0].message.content.trim();
         const keywords = responseText.data.choices[0].message?.content?.trim();
         const responsePicture = await openai.createImage({
-          prompt: keywords,
+          prompt: `An expressive or abstract paiting or photo of ${keywords}`,
           n: 3,
           size: "1024x1024",
         });

@@ -4,6 +4,7 @@ import { GET_ARTICLE_BY_ID } from "../graphql/queries";
 import { useParams } from "react-router-dom";
 import { Avatar } from "@nextui-org/react";
 import ArticleMenu from "../components/ArticleMenu";
+import { Spinner } from "@nextui-org/react";
 
 const ArticleDetailPage = () => {
   const { articleId } = useParams();
@@ -13,7 +14,11 @@ const ArticleDetailPage = () => {
   });
 
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <div className="flex justify-center mx-auto">
+        <Spinner label="loading" color="success" labelColor="success" />
+      </div>
+    );
   }
   if (error) {
     throw error;
@@ -32,8 +37,8 @@ const ArticleDetailPage = () => {
       <div className="mx-24 my-8">
         <div className="grid grid-cols-12 gap-16">
           <div className="col-span-4 h-[70vh]">
-            <div className="absolute w-[60%] h-[90%] overflow-hidden">
-              <h1 className="text-9xl uppercase font-extrabold tracking-tighter">
+            <div className="absolute w-[80%] lg:w-[65%] h-[90%] overflow-hidden">
+              <h1 className="text-8xl lg:text-9xl uppercase font-extrabold tracking-tighter">
                 {article.title}
               </h1>
               <div className="flex items-center gap-4 p-4">
