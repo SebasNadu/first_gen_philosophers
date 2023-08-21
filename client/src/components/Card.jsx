@@ -14,7 +14,7 @@ import {
   AvatarGroup,
   Chip,
 } from "@nextui-org/react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import fakeImg from "../assets/images/home_banner.jpg";
 
 export default function Card42(props) {
@@ -32,6 +32,8 @@ export default function Card42(props) {
     tags,
   } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const navigate = useNavigate();
 
   let newCreatedAt;
   if (createdAt === undefined) {
@@ -106,16 +108,15 @@ export default function Card42(props) {
             </AvatarGroup>
           )}
 
-          <Link to={`/articles/${id}`}>
-            <Button
-              className="text-tiny"
-              color="success"
-              radius="full"
-              size="sm"
-            >
-              Read me
-            </Button>
-          </Link>
+          <Button
+            className="text-tiny"
+            color="success"
+            radius="full"
+            size="sm"
+            onClick={() => navigate(`/articles/${id}`)}
+          >
+            Read me
+          </Button>
         </CardFooter>
       </Card>
       <Modal backdrop={"blur"} isOpen={isOpen} onClose={onClose}>
@@ -160,11 +161,13 @@ export default function Card42(props) {
                 <Button color="danger" variant="light" onClick={onClose}>
                   Close
                 </Button>
-                <Link to={`/articles/${id}`}>
-                  <Button color="success" onPress={onClose}>
-                    Read more
-                  </Button>
-                </Link>
+                <Button
+                  color="success"
+                  onPress={onClose}
+                  onClick={() => navigate(`/articles/${id}`)}
+                >
+                  Read more
+                </Button>
               </ModalFooter>
             </>
           )}

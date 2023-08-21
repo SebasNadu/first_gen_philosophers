@@ -29,7 +29,6 @@ const router = createBrowserRouter([
       {
         path: "discover",
         element: <DiscoverPage />,
-        // action: authAction,
       },
       {
         path: "articles",
@@ -37,7 +36,6 @@ const router = createBrowserRouter([
           {
             index: true,
             element: <ArticlesPage />,
-            // loader: eventsLoader,
           },
           {
             path: ":articleId",
@@ -46,28 +44,22 @@ const router = createBrowserRouter([
               {
                 index: true,
                 element: <ArticleDetailPage />,
-                // action: deleteEventAction,
               },
               {
                 path: "edit",
                 element: <EditArticlePage />,
-                // action: manipulateEventAction,
-                // loader: checkAuthLoader,
               },
             ],
           },
           {
             path: "create",
             element: <CreateArticlePage />,
-            // action: manipulateEventAction,
-            // loader: checkAuthLoader,
           },
         ],
       },
       {
         path: "profile",
         element: <ProfilePage />,
-        // action: newsletterAction,
       },
       {
         path: "logout",

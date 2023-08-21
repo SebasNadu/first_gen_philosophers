@@ -1,4 +1,5 @@
-import { useRouteLoaderData, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useRouteLoaderData, useNavigate, Form } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 import {
   Navbar,
@@ -21,8 +22,9 @@ import { GET_USER_BY_ID } from "../graphql/queries";
 
 export default function Navbar42() {
   const { token, userId } = useRouteLoaderData("root");
+  console.log("From Navbar", token, userId);
 
-  const { data, loading, error } = useQuery(GET_USER_BY_ID, {
+  const { data, loading, error, refetch } = useQuery(GET_USER_BY_ID, {
     variables: { getUserByIdId: userId },
     skip: !token || !userId,
   });
@@ -32,10 +34,6 @@ export default function Navbar42() {
   if (error) {
     navigate("/auth");
   }
-
-  const loginHandler = () => {
-    navigate("/auth");
-  };
 
   return (
     <Navbar
@@ -77,7 +75,7 @@ export default function Navbar42() {
           <Button
             radius="full"
             className="bg-gradient-to-tr from-cyan-500 to-lime-400 text-white shadow-lg"
-            onClick={loginHandler}
+            onClick={() => navigate("/auth?mode=login")}
           >
             Log In
           </Button>
@@ -112,16 +110,17 @@ export default function Navbar42() {
                 </DropdownItem>
                 <DropdownItem key="MyArticles">My Articles</DropdownItem>
                 <DropdownItem key="like">What I Like</DropdownItem>
-                <DropdownItem key="discover">
-                  <Link to="discover" className="hover:no-underline">
-                    <div className="min-w-full min-h-full">
-                      <p>Discover</p>
-                    </div>
-                  </Link>
+                <DropdownItem
+                  key="discover"
+                  onClick={() => navigate("discover")}
+                >
+                  Discover
                 </DropdownItem>
                 <DropdownItem key="leaderboard">Leaderboard</DropdownItem>
                 <DropdownItem key="logout" color="danger">
-                  Log Out
+                  <Form action="/logout" method="post">
+                    <button>Log Out</button>
+                  </Form>
                 </DropdownItem>
               </DropdownMenu>
             </Dropdown>

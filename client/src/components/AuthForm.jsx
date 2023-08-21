@@ -1,7 +1,8 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, redirect } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { useMutation } from "@apollo/client";
 import { CREATE_USER, LOGIN_USER } from "../graphql/mutations.js";
+import { tokenLoader } from "../loaders/auth";
 
 import { Button, Input, Card, CardBody } from "@nextui-org/react";
 import { MailIcon } from "./MailIcon.jsx";
@@ -77,6 +78,9 @@ function AuthForm() {
       if (!response) {
         throw new Error("No response");
       }
+      if (error) {
+        throw new Error(error);
+      }
 
       const token = !isLogin
         ? response.data.createUser.token
@@ -90,9 +94,7 @@ function AuthForm() {
       const expiration = new Date();
       expiration.setHours(expiration.getHours() + 5);
       localStorage.setItem("expiration", expiration.toISOString());
-      if (!error) {
-        navigate(-1);
-      }
+      navigate("/");
     } catch (err) {
       console.log(err);
     } finally {
