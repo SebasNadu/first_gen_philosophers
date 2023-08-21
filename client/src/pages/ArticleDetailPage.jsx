@@ -71,13 +71,20 @@ const ArticleDetailPage = () => {
               <div className="mt-4 flex justify-center items-center">
                 <blockquote className="bg-slate-50 rounded-xl p-6 pb-3 shadow w-[95%]">
                   <span className="text-4xl leading-3 font-bold">“</span>
-                  {` ${article.body} `}
+                  {` ${article.abstract} `}
                   <span className="text-4xl leading-3 font-bold">„</span>
                   <p className="font-workitalic text-end">- FirstGenAI -</p>
                 </blockquote>
               </div>
             )}
-            {article.body && <PageContent>{article.body}</PageContent>}
+            {article.body && (
+              <PageContent>
+                <div
+                  className="flex flex-col gap-5"
+                  dangerouslySetInnerHTML={{ __html: article.body }}
+                ></div>
+              </PageContent>
+            )}
           </div>
         </div>
       </div>

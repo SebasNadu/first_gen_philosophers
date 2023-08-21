@@ -31,7 +31,7 @@ function ArticleMenu({ article }) {
   }, [article, userId]);
 
   return (
-    <div className="sticky">
+    <div className="sticky top-1/2 transform -translate-y-0">
       <Card className="max-w-full m-4">
         <CardHeader className="justify-between p-6">
           <div className="flex gap-5">

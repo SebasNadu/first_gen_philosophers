@@ -119,7 +119,7 @@ export default function Card42(props) {
           </Button>
         </CardFooter>
       </Card>
-      <Modal backdrop={"blur"} isOpen={isOpen} onClose={onClose}>
+      <Modal backdrop={"blur"} isOpen={isOpen} onClose={onClose} size={"xl"}>
         <ModalContent>
           {(onClose) => (
             <>
@@ -155,7 +155,7 @@ export default function Card42(props) {
                 </div>
               )}
               <ModalBody>
-                <p>{abstract ? abstract : truncateText(body, 50)}</p>
+                <p>{abstract ? abstract : truncateText(body, 100)}</p>
               </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="light" onClick={onClose}>

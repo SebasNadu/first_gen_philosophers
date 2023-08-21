@@ -200,28 +200,21 @@ export const articleResolver = {
       let cloudinaryPictureUrl = null;
       if (picture) {
         try {
-          const response = await fetch(picture);
-          if (!response.ok) {
-            throw new Error("Failed to fetch image");
+          const uploadResponse = await cloudinary.uploader.upload(picture, {
+            folder: "article-pictures",
+          });
+
+          if (!uploadResponse.secure_url) {
+            throw new Error("Error while uploading image to Cloudinary");
           }
 
-          const imageStream = response.body;
-          const uploadStream = cloudinary.uploader.upload_stream(
-            { folder: "article-pictures" },
-            (error, result) => {
-              if (error) {
-                throw error;
-              }
-              cloudinaryPictureUrl = result.secure_url;
-            }
-          );
-
-          imageStream.pipe(uploadStream);
+          cloudinaryPictureUrl = uploadResponse.secure_url;
         } catch (error) {
           console.error("Error while uploading image:", error);
           throw new Error("Error while uploading image");
         }
       }
+      let truncatedBody = body.substring(0, 4096);
       let abstract = "";
       try {
         const resAbstract = await openai.createChatCompletion({
@@ -234,7 +227,7 @@ export const articleResolver = {
             },
             {
               role: "user",
-              content: body,
+              content: truncatedBody,
             },
           ],
           temperature: 0,
@@ -243,7 +236,6 @@ export const articleResolver = {
           frequency_penalty: 0,
           presence_penalty: 0,
         });
-        console.log(resAbstract.data.choices[0].message.content);
         abstract = resAbstract.data.choices[0].message.content;
       } catch (error) {
         console.error("Error while creating abstract:", error);
@@ -259,6 +251,11 @@ export const articleResolver = {
         user: currentUser,
       });
       const savedArticle = await article.save();
+      if (!savedArticle) {
+        const error = new Error("Error while saving article");
+        error.code = 500;
+        throw error;
+      }
       return savedArticle;
     },
 
