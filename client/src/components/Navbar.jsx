@@ -1,6 +1,8 @@
-import { useEffect } from "react";
-import { useRouteLoaderData, useNavigate, Form } from "react-router-dom";
-import { useQuery } from "@apollo/client";
+import { useNavigate, Form } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { setUser } from "../reducers/user";
+import { tokenLoader } from "../loaders/auth";
+
 import {
   Navbar,
   NavbarBrand,
@@ -18,22 +20,11 @@ import { AcmeLogo } from "./FGP_Logo.jsx";
 import { SearchIcon } from "./SearchIcon.jsx";
 import { Link, NavLink } from "react-router-dom";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
-import { GET_USER_BY_ID } from "../graphql/queries";
 
 export default function Navbar42() {
-  const { token, userId } = useRouteLoaderData("root");
-  console.log("From Navbar", token, userId);
-
-  const { data, loading, error, refetch } = useQuery(GET_USER_BY_ID, {
-    variables: { getUserByIdId: userId },
-    skip: !token || !userId,
-  });
+  const user = useSelector((state) => state.user.user);
 
   const navigate = useNavigate();
-
-  if (error) {
-    navigate("/auth");
-  }
 
   return (
     <Navbar
@@ -71,16 +62,16 @@ export default function Navbar42() {
           type="search"
         />
 
-        {!data && (
+        {user === null && (
           <Button
             radius="full"
             className="bg-gradient-to-tr from-cyan-500 to-lime-400 text-white shadow-lg"
-            onClick={() => navigate("/auth?mode=login")}
+            onClick={() => navigate("/auth")}
           >
             Log In
           </Button>
         )}
-        {data && (
+        {user && (
           <>
             <NavbarItem className="list">
               <NavLink to="articles/create">
@@ -94,32 +85,41 @@ export default function Navbar42() {
                   as="button"
                   className="transition-transform"
                   color="success"
-                  name={data.getUserById.firstName}
+                  name={user.firstName}
                   size="sm"
-                  src={data.getUserById.profilePicture}
+                  src={user.profilePicture}
                 />
               </DropdownTrigger>
               <DropdownMenu aria-label="Profile Actions" variant="flat">
-                <DropdownItem key="profile" className="h-14 gap-2">
-                  <Link to="profile" className="hover:no-underline">
-                    <div className="min-w-full min-h-full">
-                      <p className="font-semibold">Signed in as</p>
-                      <p className="font-semibold">zoey@example.com</p>
-                    </div>
-                  </Link>
+                <DropdownItem
+                  key="profile"
+                  className="h-14 gap-2"
+                  textValue="Profile"
+                  onClick={() => navigate("profile")}
+                >
+                  <p className="font-semibold">Signed in as</p>
+                  <p className="font-semibold">{user.email}</p>
                 </DropdownItem>
                 <DropdownItem key="MyArticles">My Articles</DropdownItem>
                 <DropdownItem key="like">What I Like</DropdownItem>
                 <DropdownItem
                   key="discover"
+                  textValue="Discover"
                   onClick={() => navigate("discover")}
                 >
                   Discover
                 </DropdownItem>
                 <DropdownItem key="leaderboard">Leaderboard</DropdownItem>
-                <DropdownItem key="logout" color="danger">
+                <DropdownItem
+                  key="logout"
+                  color="danger"
+                  textValue="Log Out"
+                  // onClick={handleLogout}
+                >
                   <Form action="/logout" method="post">
-                    <button>Log Out</button>
+                    <button type="submit" className="w-full text-left">
+                      Log Out
+                    </button>
                   </Form>
                 </DropdownItem>
               </DropdownMenu>

@@ -12,7 +12,7 @@ export const userSchema = gql`
   type Mutation {
     generateSignedUrl(filename: String!): String!
     login(email: String!, password: String!): AuthData!
-    createUser(userInput: UserInputData): AuthData!
+    createUser(userInput: UserInputData): Boolean
     updateUser(userInputUpdate: UserInputUpdateData): User!
     deleteUser(id: ID!): Boolean
     followUser(id: ID!): Boolean
@@ -21,7 +21,7 @@ export const userSchema = gql`
 
   type AuthData {
     token: String!
-    userId: String!
+    user: User!
   }
 
   type User {
@@ -40,13 +40,10 @@ export const userSchema = gql`
   }
 
   input UserInputData {
-    email: String!
-    password: String!
-    firstName: String!
-    lastName: String!
-    active: Boolean
-    profilePicture: String
-    story: String
+    email: String
+    password: String
+    firstName: String
+    lastName: String
   }
 
   input UserInputUpdateData {

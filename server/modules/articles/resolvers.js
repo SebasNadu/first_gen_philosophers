@@ -2,8 +2,6 @@ import Article from "./Article.js";
 import User from "../users/User.js";
 import Comment from "../comments/Comment.js";
 import validator from "validator";
-// import fs from "fs";
-// import path from "path";
 import openai from "../../utils/openai.js";
 import cloudinary from "../../utils/cloudinary.js";
 
@@ -12,11 +10,28 @@ export const articleResolver = {
     getArticleById: async (_, { id }) => {
       try {
         const article = await Article.findById(id)
-          .populate("user")
+          .populate({
+            path: "user",
+            model: "User",
+            populate: [
+              { path: "followers", model: "User" },
+              { path: "following", model: "User" },
+            ],
+          })
           .populate({
             path: "comments",
             model: "Comment",
-            populate: { path: "user", model: "User" },
+            populate: [
+              {
+                path: "user",
+                model: "User",
+                populate: [
+                  { path: "followers", model: "User" },
+                  { path: "following", model: "User" },
+                ],
+              },
+              { path: "likes", model: "User" },
+            ],
           })
           .populate({ path: "likes", model: "User" });
         return article;
@@ -111,7 +126,7 @@ export const articleResolver = {
       try {
         if (!total) {
           const articles = await Article.find()
-            .sort({ likesCount: -1 })
+            .sort({ countLikes: -1 })
             .limit(total)
             .populate("user")
             .populate({
@@ -123,7 +138,7 @@ export const articleResolver = {
           return articles;
         }
         const articles = await Article.find()
-          .sort({ likesCount: -1 })
+          .sort({ countLikes: -1 })
           .populate("user")
           .populate({
             path: "comments",
@@ -141,7 +156,7 @@ export const articleResolver = {
       try {
         if (!total) {
           const articles = await Article.find()
-            .sort({ commentsCount: -1 })
+            .sort({ countComments: -1 })
             .limit(total)
             .populate("user")
             .populate({
@@ -154,7 +169,7 @@ export const articleResolver = {
           return articles;
         }
         const articles = await Article.find()
-          .sort({ commentsCount: -1 })
+          .sort({ countComments: -1 })
           .populate("user")
           .populate({
             path: "comments",
@@ -250,13 +265,14 @@ export const articleResolver = {
         active,
         user: currentUser,
       });
-      const savedArticle = await article.save();
-      if (!savedArticle) {
-        const error = new Error("Error while saving article");
-        error.code = 500;
-        throw error;
+
+      try {
+        const savedArticle = await article.save();
+        return savedArticle;
+      } catch (error) {
+        console.error("Error while saving article:", error);
+        throw new Error("Error while saving article");
       }
-      return savedArticle;
     },
 
     updateArticle: async (_, { id, articleInput }, contextValue) => {

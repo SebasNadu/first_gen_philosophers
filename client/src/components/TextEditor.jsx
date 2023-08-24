@@ -113,12 +113,6 @@ const TextEditor = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("handleSubmit");
-    console.log("title", title);
-    console.log("text", text);
-    console.log("tags", tags);
-    console.log("publicArticle", publicArticle);
-    console.log("pictures", pictures[selectedCardIndex]);
 
     const articleInput = {
       title,
@@ -279,7 +273,7 @@ const TextEditor = () => {
                     key={index}
                     className={`cursor-pointer w-[200px] space-y-5 p-4 my-2 ${
                       selectedCardIndex === index
-                        ? "border border-lime-400"
+                        ? "border-4 border-lime-400 border-opacity-50"
                         : ""
                     }`}
                     radius="2xl"
@@ -326,7 +320,6 @@ const TextEditor = () => {
           </div>
         </div>
       </form>
-      <Toaster richColors />
     </>
   );
 };

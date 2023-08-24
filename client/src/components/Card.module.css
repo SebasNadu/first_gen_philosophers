@@ -1,0 +1,22 @@
+.card:hover {
+  transition: transform 0.2s ease-in-out;
+  transform: translateY(-1px) scale(1.05);
+  filter: blur(0);
+}
+
+.card:hover * {
+  color: white;
+  text-shadow: 1px 1px 10px rgba(0, 0, 0, 0.6);
+}
+
+.card:hover .filter42 {
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.2),
+    rgba(255, 255, 255, 0.2)
+  );
+  transition: transform 0s ease-in-out, background-color 0.8s ease-in-out;
+  transform: translateY(-1px) scale(1.05);
+  background-color: rgba(0, 0, 0, 0.2);
+  filter: blur(0);
+}

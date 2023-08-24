@@ -63,7 +63,7 @@ function HomePage() {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 
-  const { byLikes, byComments, loading, error } = useTopsLoader();
+  const { byLikes, byComments, articles, loading, error } = useTopsLoader();
 
   return (
     <>
@@ -75,8 +75,8 @@ function HomePage() {
             <CardsCarousel data={byLikes} />
             <h2>Most Popular Articles</h2>
             <CardsCarousel data={byComments} />
-            <h2>Best Authors</h2>
-            <CardsCarousel data={list} />
+            <h2>Last Articles</h2>
+            <CardsCarousel data={articles} />
             <h1 className="page-title">
               Welcome to{" "}
               <span className="title-text">#FirstGenPhilosophers!</span>

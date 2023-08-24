@@ -15,9 +15,15 @@ export const userResolver = {
         error.code = 401;
         throw error;
       }
-      return User.findById(id).catch((error) => {
+      try {
+        const user = User.findById(id)
+          .populate({ path: "followers", model: "User" })
+          .populate({ path: "following", model: "User" });
+        return user;
+      } catch (error) {
+        error.code = 500;
         throw error;
-      });
+      }
     },
 
     getUsers: async (_, { total }) => {
@@ -66,7 +72,13 @@ export const userResolver = {
     },
 
     login: async (_, { email, password }) => {
-      const user = await User.findOne({ email }).select("+password");
+      const user = await User.findOne({ email })
+        .select("+password")
+        .populate({
+          path: "followers",
+          model: "User",
+        })
+        .populate({ path: "following", model: "User" });
       if (!user) {
         const error = new Error("User not found");
         error.code = 401;
@@ -86,19 +98,12 @@ export const userResolver = {
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_EXPIRES_IN }
       );
-      return { token, userId: user.id };
+      return { token, user };
     },
 
     createUser: async (_, { userInput }) => {
-      const {
-        email,
-        password,
-        firstName,
-        lastName,
-        active,
-        profilePicture,
-        story,
-      } = userInput;
+      console.log(userInput);
+      const { email, password, firstName, lastName } = userInput;
       const errors = [];
       if (validator.isEmpty(email)) {
         errors.push({ message: "Email is required" });
@@ -127,31 +132,23 @@ export const userResolver = {
         error.code = 422;
         throw error;
       }
-      const user = new User({
+      const user = await new User({
         email,
         password,
         firstName,
         lastName,
-        active,
-        profilePicture,
-        story,
-      });
+      }).populate([
+        { path: "followers", model: "User" },
+        { path: "following", model: "User" },
+      ]);
+
       const savedUser = await user.save();
       if (!savedUser) {
-        const error = new Error("An error occurred while creating the user");
+        const error = new Error("Failed to save user");
         error.code = 500;
         throw error;
       }
-
-      const token = jwt.sign(
-        {
-          userId: savedUser.id,
-          email: savedUser.email,
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: process.env.JWT_EXPIRES_IN }
-      );
-      return { token, userId: user.id };
+      return true;
     },
 
     updateUser: async (_, { userInputUpdate }, contextValue) => {
@@ -260,7 +257,6 @@ export const userResolver = {
         }
         updatedFields.password = newPassword;
       }
-      // Update the user
       const updatedUser = await User.findByIdAndUpdate(user.id, updatedFields, {
         new: true,
       }).catch((error) => {

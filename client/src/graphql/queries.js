@@ -61,23 +61,25 @@ export const GET_TOPS_BY_COMMENTS = gql`
 export const GET_USER_BY_ID = gql`
   query getUserById($getUserByIdId: ID!) {
     getUserById(id: $getUserByIdId) {
-      id
       active
       createdAt
       email
       firstName
-      followers {
-        id
-        profilePicture
-      }
-      following {
-        id
-        profilePicture
-      }
+      id
       lastName
       profilePicture
       story
       updatedAt
+      followers {
+        id
+        firstName
+        profilePicture
+      }
+      following {
+        firstName
+        id
+        profilePicture
+      }
     }
   }
 `;
@@ -100,9 +102,13 @@ export const GET_ARTICLE_BY_ID = gql`
         lastName
         followers {
           id
+          firstName
+          profilePicture
         }
         following {
           id
+          firstName
+          profilePicture
         }
       }
       comments {
@@ -110,6 +116,16 @@ export const GET_ARTICLE_BY_ID = gql`
           firstName
           id
           profilePicture
+          followers {
+            id
+            firstName
+            profilePicture
+          }
+          following {
+            firstName
+            id
+            profilePicture
+          }
         }
         content
         createdAt
@@ -127,6 +143,31 @@ export const GET_ARTICLE_BY_ID = gql`
       }
       countLikes
       countComments
+    }
+  }
+`;
+
+export const GET_ARTICLES = gql`
+  query GetArticles {
+    getArticles {
+      active
+      title
+      abstract
+      body
+      createdAt
+      id
+      picture
+      tags
+      user {
+        id
+        firstName
+        profilePicture
+      }
+      likes {
+        firstName
+        id
+        profilePicture
+      }
     }
   }
 `;

@@ -37,7 +37,7 @@ const CardsCarousel = (props) => {
         arrows
         autoPlaySpeed={3000}
         centerMode={false}
-        className=""
+        className="py-4"
         containerClass="container-with-dots"
         dotListClass=""
         draggable
@@ -61,7 +61,7 @@ const CardsCarousel = (props) => {
         swipeable
       >
         {props.data.map((item, index) => (
-          <div className="m-4" key={index}>
+          <div className="m-2" key={index}>
             <Card42
               title={item.title}
               abstract={item.abstract}

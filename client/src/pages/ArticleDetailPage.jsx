@@ -9,7 +9,7 @@ import { Spinner } from "@nextui-org/react";
 const ArticleDetailPage = () => {
   const { articleId } = useParams();
 
-  const { data, error, loading } = useQuery(GET_ARTICLE_BY_ID, {
+  const { data, error, loading, refetch } = useQuery(GET_ARTICLE_BY_ID, {
     variables: { getArticleByIdId: articleId },
   });
 
@@ -37,8 +37,8 @@ const ArticleDetailPage = () => {
       <div className="mx-24 my-8">
         <div className="grid grid-cols-12 gap-16">
           <div className="col-span-4 h-[70vh]">
-            <div className="absolute w-[80%] lg:w-[65%] h-[90%] overflow-hidden">
-              <h1 className="text-8xl lg:text-9xl uppercase font-extrabold tracking-tighter">
+            <div className="absolute w-[80%] lg:w-[60%] h-[90%] overflow-hidden">
+              <h1 className="text-7xl lg:text-8xl uppercase font-extrabold tracking-tighter">
                 {article.title}
               </h1>
               <div className="flex items-center gap-4 p-4">
@@ -63,7 +63,7 @@ const ArticleDetailPage = () => {
 
         <div className="grid grid-cols-12 gap-16 my-4">
           <div className="relative col-span-4 h-full flex flex-col justify-start my-20">
-            <ArticleMenu article={article} />
+            <ArticleMenu article={article} refetch={refetch} />
           </div>
           <div className="col-span-8 h-full flex flex-col justify-start">
             <p>{articleDate}</p>

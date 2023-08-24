@@ -1,5 +1,14 @@
 import { useState, useEffect } from "react";
-import { useRouteLoaderData } from "react-router-dom";
+import { useRouteLoaderData, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import {
+  LIKE_ARTICLE,
+  UNLIKE_ARTICLE,
+  FOLLOW_USER,
+  UNFOLLOW_USER,
+  CREATE_COMMENT,
+} from "../graphql/mutations";
+import { useMutation } from "@apollo/client";
 import {
   Avatar,
   Card,
@@ -13,22 +22,109 @@ import {
   AccordionItem,
   Textarea,
 } from "@nextui-org/react";
+import { toast } from "sonner";
+import Comment from "./Comment";
 
-function ArticleMenu({ article }) {
+function ArticleMenu({ article, refetch }) {
+  const user = useSelector((state) => state.user.user);
+  const { token, userId } = useRouteLoaderData("root");
+
   const [isLiked, setIsLiked] = useState(false);
   const [isFollowed, setIsFollowed] = useState(false);
-  const { userId } = useRouteLoaderData("root");
+  const [commentValue, setCommentValue] = useState("");
+
+  const navigate = useNavigate();
+
+  const [likeArticle] = useMutation(LIKE_ARTICLE);
+  const [unlikeArticle] = useMutation(UNLIKE_ARTICLE);
+  const [followUser] = useMutation(FOLLOW_USER);
+  const [unfollowUser] = useMutation(UNFOLLOW_USER);
+  const [createComment] = useMutation(CREATE_COMMENT);
 
   useEffect(() => {
-    if (article) {
-      if (article.likes.includes(userId)) {
-        setIsLiked(true);
-      }
-      if (article.user.followers.includes(userId)) {
-        setIsFollowed(true);
-      }
+    if (article && userId) {
+      const isLiked = article.likes.some((like) => like.id === userId);
+      setIsLiked(isLiked);
     }
-  }, [article, userId]);
+    if (user && article) {
+      const isFollowed = user.following.some(
+        (follow) => follow.id === article.user.id
+      );
+      setIsFollowed(isFollowed);
+    }
+  }, [article, userId, user]);
+
+  const handleLikeArticle = async () => {
+    if (!token) {
+      toast.error("You must be logged in to like a comment");
+      navigate("/auth");
+      return;
+    }
+    try {
+      if (isLiked) {
+        await unlikeArticle({
+          variables: { unlikeArticleId: article.id },
+        });
+      } else {
+        await likeArticle({
+          variables: { likeArticleId: article.id },
+        });
+      }
+      await refetch({ articleId: article.id });
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
+
+  const handleFollowUser = async () => {
+    if (!token) {
+      toast.error("You must be logged in to follow a user");
+      navigate("/auth");
+      return;
+    }
+    if (user.id === article.user.id) {
+      toast.error("You cannot follow yourself");
+      return;
+    }
+    try {
+      if (isFollowed) {
+        await unfollowUser({
+          variables: { unfollowUserId: article.user.id },
+        });
+      } else {
+        await followUser({
+          variables: { followUserId: article.user.id },
+        });
+      }
+      await refetch({ articleId: article.id });
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
+
+  const handleCreateComment = async (e) => {
+    e.preventDefault();
+
+    if (!token) {
+      navigate("/auth");
+      return;
+    }
+
+    try {
+      await createComment({
+        variables: {
+          commentInput: {
+            articleId: article.id,
+            content: commentValue,
+          },
+        },
+      });
+      await refetch({ articleId: article.id });
+      setCommentValue("");
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
 
   return (
     <div className="sticky top-1/2 transform -translate-y-0">
@@ -61,7 +157,7 @@ function ArticleMenu({ article }) {
               radius="full"
               size="sm"
               variant={isFollowed ? "solid" : "bordered"}
-              onPress={() => setIsFollowed(!isFollowed)}
+              onPress={handleFollowUser}
             >
               {isFollowed ? "Unfollow" : "Follow"}
             </Button>
@@ -82,58 +178,12 @@ function ArticleMenu({ article }) {
               }}
             >
               {article.comments.map((comment, index) => (
-                <div key={index}>
-                  <div className="flex justify-between mx-1">
-                    <div className="flex gap-5">
-                      <Avatar
-                        isBordered
-                        radius="full"
-                        size="md"
-                        src={comment.user.profilePicture}
-                      />
-                      <div className="flex flex-col gap-1 items-start justify-center">
-                        <h4 className="text-small font-semibold leading-none text-default-600">
-                          {comment.user && comment.user.firstName}
-                        </h4>
-                        <h5 className="text-small tracking-tight text-default-400">
-                          View Profile
-                        </h5>
-                      </div>
-                    </div>
-                    <div>
-                      <Button
-                        className={
-                          !isFollowed
-                            ? "mx-1 bg-transparent text-foreground border-default-200"
-                            : "mx-1"
-                        }
-                        color="success"
-                        radius="full"
-                        size="sm"
-                        variant={isFollowed ? "solid" : "bordered"}
-                        onPress={() => setIsFollowed(!isFollowed)}
-                      >
-                        {isFollowed ? "Unfollow" : "Follow"}
-                      </Button>
-                      <Button
-                        className={
-                          !isLiked
-                            ? "mx-1 bg-transparent text-foreground border-default-200"
-                            : "mx-1"
-                        }
-                        color="success"
-                        radius="full"
-                        size="sm"
-                        variant={isLiked ? "solid" : "bordered"}
-                        onPress={() => setIsLiked(!isLiked)}
-                      >
-                        {isLiked ? "Unlike" : "Like"}
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="p-2 mb-2">{comment.content}</div>
-                  <Divider className="mb-4" />
-                </div>
+                <Comment
+                  key={index}
+                  article={article}
+                  comment={comment}
+                  refetch={refetch}
+                />
               ))}
             </AccordionItem>
             <AccordionItem
@@ -143,29 +193,54 @@ function ArticleMenu({ article }) {
                 title: "text-medium",
               }}
             >
-              <div className="w-full p-2">
-                <Textarea
-                  label="Write a comment"
-                  variant="bordered"
-                  labelPlacement="outside"
-                  placeholder="Enter your comment here"
-                  className="max-w-full"
-                  classNames={{
-                    label: "hidden",
-                  }}
-                />
-                <Button
-                  color="success"
-                  radius="full"
-                  size="md"
-                  fullWidth
-                  variant="ghost"
-                  onPress={() => setIsLiked(!isLiked)}
-                  className="mt-2"
-                >
-                  Send
-                </Button>
-              </div>
+              {user ? (
+                <div className="w-full p-2">
+                  <form onSubmit={handleCreateComment}>
+                    <Textarea
+                      label="Write a comment"
+                      variant="bordered"
+                      labelPlacement="outside"
+                      placeholder="Enter your comment here"
+                      className="max-w-full"
+                      classNames={{
+                        label: "hidden",
+                      }}
+                      name="comment"
+                      required
+                      id="comment"
+                      value={commentValue}
+                      onValueChange={setCommentValue}
+                    />
+                    <Button
+                      color="success"
+                      radius="full"
+                      size="md"
+                      fullWidth
+                      variant="ghost"
+                      className="mt-2"
+                      type="submit"
+                    >
+                      Send
+                    </Button>
+                  </form>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center gap-2 p-2">
+                  <h6 className="text-default-400 text-small">
+                    You must be logged in to comment
+                  </h6>
+                  <Button
+                    color="success"
+                    radius="full"
+                    size="md"
+                    variant="faded"
+                    onPress={() => navigate("/auth")}
+                    className="mt-2"
+                  >
+                    Login
+                  </Button>
+                </div>
+              )}
             </AccordionItem>
           </Accordion>
         </CardBody>
@@ -208,7 +283,7 @@ function ArticleMenu({ article }) {
               radius="full"
               size="sm"
               variant={isLiked ? "solid" : "bordered"}
-              onPress={() => setIsLiked(!isLiked)}
+              onPress={handleLikeArticle}
             >
               {isLiked ? "Unlike article" : "Like article"}
             </Button>

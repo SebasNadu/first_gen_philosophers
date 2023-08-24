@@ -3,7 +3,9 @@ import { useState, useMemo } from "react";
 import { useMutation } from "@apollo/client";
 import { CREATE_USER, LOGIN_USER } from "../graphql/mutations.js";
 import { tokenLoader } from "../loaders/auth";
-// import { useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
+import { setUser } from "../reducers/user";
+import { toast } from "sonner";
 // import { setUserId, setToken } from "../reducers/auth";
 
 import { Button, Input, Card, CardBody } from "@nextui-org/react";
@@ -11,7 +13,6 @@ import { MailIcon } from "./MailIcon.jsx";
 import { LockIcon } from "./LockIcon.jsx";
 
 function AuthForm() {
-  // const dispatch = useDispatch();
   const [isLogin, setIsLogin] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailValue, setEmailValue] = useState("");
@@ -19,46 +20,77 @@ function AuthForm() {
   const [firstNameValue, setFirstNameValue] = useState("");
   const [lastNameValue, setLastNameValue] = useState("");
 
+  const dispatch = useDispatch();
+
   const validateEmail = (email) =>
     /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email);
   const validatePassword = (password) => password.length >= 5;
   const validateFirstName = (firstName) => firstName.length >= 3;
   const validateLastName = (lastName) => lastName.length >= 3;
 
-  const validationState = useMemo(() => {
+  const validationStateCreate = useMemo(() => {
+    const emailValidation =
+      emailValue === ""
+        ? undefined
+        : validateEmail(emailValue)
+        ? "valid"
+        : "invalid";
+
+    const passwordValidation =
+      passwordValue === ""
+        ? undefined
+        : validatePassword(passwordValue)
+        ? "valid"
+        : "invalid";
+
+    const firstNameValidation =
+      firstNameValue === ""
+        ? undefined
+        : validateFirstName(firstNameValue)
+        ? "valid"
+        : "invalid";
+
+    const lastNameValidation =
+      lastNameValue === ""
+        ? undefined
+        : validateLastName(lastNameValue)
+        ? "valid"
+        : "invalid";
+
     return {
-      email:
-        emailValue === ""
-          ? undefined
-          : validateEmail(emailValue)
-          ? "valid"
-          : "invalid",
-      password:
-        passwordValue === ""
-          ? undefined
-          : validatePassword(passwordValue)
-          ? "valid"
-          : "invalid",
-      firstName:
-        firstNameValue === ""
-          ? undefined
-          : validateFirstName(firstNameValue)
-          ? "valid"
-          : "invalid",
-      lastName:
-        lastNameValue === ""
-          ? undefined
-          : validateLastName(lastNameValue)
-          ? "valid"
-          : "invalid",
+      email: emailValidation,
+      password: passwordValidation,
+      firstName: firstNameValidation,
+      lastName: lastNameValidation,
     };
   }, [emailValue, passwordValue, firstNameValue, lastNameValue]);
 
+  const validationStateLogin = useMemo(() => {
+    const emailValidation =
+      emailValue === ""
+        ? undefined
+        : validateEmail(emailValue)
+        ? "valid"
+        : "invalid";
+
+    const passwordValidation =
+      passwordValue === ""
+        ? undefined
+        : validatePassword(passwordValue)
+        ? "valid"
+        : "invalid";
+    return {
+      email: emailValidation,
+      password: passwordValidation,
+    };
+  }, [emailValue, passwordValue]);
+
   const navigate = useNavigate();
 
-  const [performMutation, { loading, error, data: mutationData }] = useMutation(
-    isLogin ? LOGIN_USER : CREATE_USER
-  );
+  const [loginUser, { error: errorLogin, loading: loadingLogin }] =
+    useMutation(LOGIN_USER);
+  const [createUser, { error: errorCreate, loading: loadingCreate }] =
+    useMutation(CREATE_USER);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -68,40 +100,57 @@ function AuthForm() {
       const form = event.target;
       const formData = new FormData(form);
 
-      const authData = {
+      const userInput = {
         email: formData.get("email"),
         password: formData.get("password"),
         firstName: formData.get("firstName"),
         lastName: formData.get("lastName"),
       };
 
-      const response = await performMutation({
-        variables: authData,
-      });
-      if (!response) {
-        throw new Error("No response");
-      }
-      if (error) {
-        throw new Error(error);
+      let response;
+      if (!isLogin) {
+        response = await createUser({
+          variables: { userInput },
+        });
+        if (errorCreate) {
+          toast.error(errorCreate.message);
+          throw new Error(errorCreate.message);
+        }
+        if (!loadingCreate && response.data.createUser) {
+          toast.success("User created");
+          setIsLogin(true);
+          return;
+        } else {
+          toast.error("No response");
+          throw new Error("No response");
+        }
+      } else {
+        response = await loginUser({
+          variables: userInput,
+        });
       }
 
-      const token = !isLogin
-        ? response.data.createUser.token
-        : response.data.login.token;
-      const userId = !isLogin
-        ? response.data.createUser.userId
-        : response.data.login.userId;
+      if (!response) {
+        toast.error("No response");
+        throw new Error("No response");
+      }
+      if (errorLogin) {
+        toast.error(errorLogin.message);
+        throw new Error(errorLogin.message);
+      }
+
+      const { token, userId, user } = response.data.login;
 
       localStorage.setItem("token", token);
       localStorage.setItem("userId", userId);
       const expiration = new Date();
       expiration.setHours(expiration.getHours() + 5);
       localStorage.setItem("expiration", expiration.toISOString());
-      // dispatch(setUserId(userId));
-      // dispatch(setToken(token));
+      dispatch(setUser(user));
       tokenLoader();
-      navigate("/");
+      navigate(-1);
     } catch (err) {
+      toast.error(err.message);
       console.log(err);
     } finally {
       setIsSubmitting(false);
@@ -116,181 +165,176 @@ function AuthForm() {
     <div className="flex justify-center items-center flex-col w-full">
       <Card
         className={`max-w-full ${
-          isLogin ? "w-[360px] h-[340px]" : "w-[360px] h-[440px]"
+          isLogin ? "w-[360px] h-[340px]" : "w-[360px] h-[460px]"
         }`}
       >
         <CardBody className="overflow-hidden">
           <form method="post" className="" onSubmit={handleSubmit}>
-            {error && (
-              <div className="text-red-500">
-                {error.message} {/* Display the error message */}
-              </div>
-            )}
             <h2 className="mb-2">{isLogin ? "Log in" : "Create user"}</h2>
-            {isLogin ? (
-              <div className="flex flex-col gap-5">
-                <Input
-                  autoFocus
-                  endContent={
-                    <MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                  }
-                  label="Email"
-                  placeholder="Enter your email"
-                  variant="bordered"
-                  id="email"
-                  type="email"
-                  name="email"
-                  required
-                  value={emailValue}
-                  color={
-                    !validationState.email
-                      ? ""
-                      : validationState.email === "invalid"
-                      ? "danger"
-                      : "success"
-                  }
-                  errorMessage={
-                    !validationState.email
-                      ? ""
-                      : validationState.email === "invalid" &&
-                        "Please enter a valid email"
-                  }
-                  validationState={validationState}
-                  onValueChange={setEmailValue}
-                />
-                <Input
-                  endContent={
-                    <LockIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                  }
-                  label="Password"
-                  placeholder="Enter your password"
-                  variant="bordered"
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  value={passwordValue}
-                  color={
-                    !validationState.password
-                      ? ""
-                      : validationState.password === "invalid"
-                      ? "danger"
-                      : "success"
-                  }
-                  errorMessage={
-                    !validationState.password
-                      ? ""
-                      : validationState.password === "invalid" &&
-                        "Please enter a valid email"
-                  }
-                  validationState={validationState}
-                  onValueChange={setPasswordValue}
-                />
-              </div>
-            ) : (
-              <div className="flex flex-col gap-4">
-                <Input
-                  isRequired
-                  label="First Name"
-                  placeholder="Enter your name"
-                  type="text"
-                  id="firstName"
-                  name="firstName"
-                  required
-                  value={firstNameValue}
-                  color={
-                    !validationState.firstName
-                      ? ""
-                      : validationState.firstName === "invalid"
-                      ? "danger"
-                      : "success"
-                  }
-                  errorMessage={
-                    !validationState.firstName
-                      ? ""
-                      : validationState.firstName === "invalid" &&
-                        "Please enter a valid email"
-                  }
-                  validationState={validationState}
-                  onValueChange={setFirstNameValue}
-                />
-                <Input
-                  isRequired
-                  label="Last Name"
-                  placeholder="Enter your name"
-                  type="text"
-                  id="lastName"
-                  name="lastName"
-                  required
-                  value={lastNameValue}
-                  color={
-                    !validationState.lastName
-                      ? ""
-                      : validationState.lastName === "invalid"
-                      ? "danger"
-                      : "success"
-                  }
-                  errorMessage={
-                    !validationState.lastName
-                      ? ""
-                      : validationState.lastName === "invalid" &&
-                        "Please enter a valid email"
-                  }
-                  validationState={validationState}
-                  onValueChange={setLastNameValue}
-                />
-                <Input
-                  isRequired
-                  label="Email"
-                  placeholder="Enter your email"
-                  type="email"
-                  id="email"
-                  name="email"
-                  required
-                  value={passwordValue}
-                  color={
-                    !validationState.password
-                      ? ""
-                      : validationState.password === "invalid"
-                      ? "danger"
-                      : "success"
-                  }
-                  errorMessage={
-                    !validationState.password
-                      ? ""
-                      : validationState.password === "invalid" &&
-                        "Please enter a valid email"
-                  }
-                  validationState={validationState}
-                  onValueChange={setPasswordValue}
-                />
-                <Input
-                  isRequired
-                  label="Password"
-                  placeholder="Enter your name"
-                  type="password"
-                  id="password"
-                  name="password"
-                  required
-                  value={passwordValue}
-                  color={
-                    !validationState.password
-                      ? ""
-                      : validationState.password === "invalid"
-                      ? "danger"
-                      : "success"
-                  }
-                  errorMessage={
-                    !validationState.password
-                      ? ""
-                      : validationState.password === "invalid" &&
-                        "Please enter a valid email"
-                  }
-                  validationState={validationState}
-                  onValueChange={setPasswordValue}
-                />
-              </div>
-            )}
+            <div className="flex flex-col gap-5">
+              {isLogin ? (
+                <>
+                  <Input
+                    autoFocus
+                    endContent={
+                      <MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                    }
+                    label="Email"
+                    placeholder="Enter your email"
+                    variant="bordered"
+                    id="email"
+                    type="email"
+                    name="email"
+                    required
+                    value={emailValue}
+                    color={
+                      !validationStateLogin.email
+                        ? ""
+                        : validationStateLogin.email === "invalid"
+                        ? "danger"
+                        : "success"
+                    }
+                    errorMessage={
+                      !validationStateLogin.email
+                        ? ""
+                        : validationStateLogin.email === "invalid" &&
+                          "Please enter a valid email"
+                    }
+                    validationState={validationStateLogin}
+                    onValueChange={setEmailValue}
+                  />
+                  <Input
+                    endContent={
+                      <LockIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                    }
+                    label="Password"
+                    placeholder="Enter your password"
+                    variant="bordered"
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    value={passwordValue}
+                    color={
+                      !validationStateLogin.password
+                        ? ""
+                        : validationStateLogin.password === "invalid"
+                        ? "danger"
+                        : "success"
+                    }
+                    errorMessage={
+                      !validationStateLogin.password
+                        ? ""
+                        : validationStateLogin.password === "invalid" &&
+                          "Please enter a valid email"
+                    }
+                    validationState={validationStateLogin}
+                    onValueChange={setPasswordValue}
+                  />
+                </>
+              ) : (
+                <>
+                  <Input
+                    isRequired
+                    label="First Name"
+                    placeholder="Enter your name"
+                    type="text"
+                    id="firstName"
+                    name="firstName"
+                    required
+                    value={firstNameValue}
+                    color={
+                      !validationStateCreate.firstName
+                        ? ""
+                        : validationStateCreate.firstName === "invalid"
+                        ? "danger"
+                        : "success"
+                    }
+                    errorMessage={
+                      !validationStateCreate.firstName
+                        ? ""
+                        : validationStateCreate.firstName === "invalid" &&
+                          "Please enter a valid email"
+                    }
+                    validationState={validationStateCreate}
+                    onValueChange={setFirstNameValue}
+                  />
+                  <Input
+                    isRequired
+                    label="Last Name"
+                    placeholder="Enter your name"
+                    type="text"
+                    id="lastName"
+                    name="lastName"
+                    required
+                    value={lastNameValue}
+                    color={
+                      !validationStateCreate.lastName
+                        ? ""
+                        : validationStateCreate.lastName === "invalid"
+                        ? "danger"
+                        : "success"
+                    }
+                    errorMessage={
+                      !validationStateCreate.lastName
+                        ? ""
+                        : validationStateCreate.lastName === "invalid" &&
+                          "Please enter a valid email"
+                    }
+                    validationState={validationStateCreate}
+                    onValueChange={setLastNameValue}
+                  />
+                  <Input
+                    label="Email"
+                    placeholder="Enter your email"
+                    id="email"
+                    type="email"
+                    name="email"
+                    required
+                    value={emailValue}
+                    color={
+                      !validationStateCreate.email
+                        ? ""
+                        : validationStateCreate.email === "invalid"
+                        ? "danger"
+                        : "success"
+                    }
+                    errorMessage={
+                      !validationStateCreate.email
+                        ? ""
+                        : validationStateCreate.email === "invalid" &&
+                          "Please enter a valid email"
+                    }
+                    validationState={validationStateCreate}
+                    onValueChange={setEmailValue}
+                  />
+                  <Input
+                    label="Password"
+                    placeholder="Enter your password"
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    value={passwordValue}
+                    color={
+                      !validationStateCreate.password
+                        ? ""
+                        : validationStateCreate.password === "invalid"
+                        ? "danger"
+                        : "success"
+                    }
+                    errorMessage={
+                      !validationStateCreate.password
+                        ? ""
+                        : validationStateCreate.password === "invalid" &&
+                          "Please enter a valid email"
+                    }
+                    validationState={validationStateCreate}
+                    onValueChange={setPasswordValue}
+                  />
+                </>
+              )}
+            </div>
             <div className="flex justify-evenly items-center p-6">
               <Button color="success" variant="ghost" onClick={toggleAuthMode}>
                 {isLogin ? "Create user" : "Login"}

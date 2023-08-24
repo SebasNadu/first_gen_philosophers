@@ -16,6 +16,7 @@ import {
 } from "@nextui-org/react";
 import { Link, useNavigate } from "react-router-dom";
 import fakeImg from "../assets/images/home_banner.jpg";
+import classes from "./Card.module.css";
 
 export default function Card42(props) {
   const {
@@ -58,13 +59,13 @@ export default function Card42(props) {
   return (
     <>
       <Card
-        isFooterBlurred
-        className="w-full h-[300px] col-span-12 sm:col-span-5"
+        className={`w-full h-[300px] col-span-12 sm:col-span-5 hover:shadow-xl 
+				transition duration-900 ease-in-out ${classes.card}`}
       >
         <CardHeader className="absolute z-10 top-1 flex-col items-start">
           <div className="flex gap-1">
             <p className="text-black text-tiny">By: {user.firstName} | </p>
-            <p className="text-black text-tiny">On: {newCreatedAt}</p>
+            <p className="text-black text-tiny"> {newCreatedAt}</p>
           </div>
           <h4 className="text-black font-medium text-2xl">{title}</h4>
         </CardHeader>
@@ -79,13 +80,16 @@ export default function Card42(props) {
             className="z-0 w-full h-full scale-125 -translate-y-6 object-cover"
             src={picture ? picture : fakeImg}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[rgba(255,255,255,0.8)] to-[rgba(0,0,0,0.2)]"></div>
+          <div
+            className={`absolute inset-0 bg-gradient-to-b 
+						from-[rgba(255,255,255,1)] to-[rgba(255,255,255,0.4)] ${classes.filter42}`}
+          ></div>
         </div>
         <CardFooter className="absolute bg-white/30 bottom-0 border-t-1 border-zinc-100/50 z-10 justify-between">
           {likes ? (
             <AvatarGroup isBordered max={3} size="sm">
-              {likes.map((like) => (
-                <Link key={like.id} to={`/profile/${like.id}`}>
+              {likes.map((like, index) => (
+                <Link key={index} to={`/profile/${like.id}`}>
                   <Avatar
                     key={like.id}
                     src={
