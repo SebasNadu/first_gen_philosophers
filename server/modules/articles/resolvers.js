@@ -521,7 +521,7 @@ export const articleResolver = {
         // const keywords = responseText.data.choices[0].message.content.trim();
         const keywords = responseText.data.choices[0].message?.content?.trim();
         const responsePicture = await openai.createImage({
-          prompt: `An expressive paiting or photo of: ${keywords}`,
+          prompt: `An expressive or abstract paiting or photo of: ${keywords}`,
           // prompt: `${keywords} in flat art style`,
           n: 3,
           size: "1024x1024",
@@ -529,7 +529,6 @@ export const articleResolver = {
         const pictures = responsePicture.data.data.map((picture) => {
           return picture.url;
         });
-        console.log(pictures);
         return pictures;
       } catch (error) {
         if (error.response) {

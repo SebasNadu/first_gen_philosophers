@@ -176,6 +176,27 @@ const DiscoverPage = () => {
                 />
               </CardBody>
             </Card>
+
+            <Card className="max-w-[400px] max-h-[260px] col-4">
+              <CardHeader className="justify-between">
+                <div className="flex flex-col gap-1 items-start justify-center">
+                  <h4 className="text-small font-semibold leading-none text-default-600">
+                    Attila
+                  </h4>
+                  <h5 className="text-small tracking-tight text-default-400">
+                    Kekesi
+                  </h5>
+                </div>
+              </CardHeader>
+              <CardBody className="px-3 pt-0 pb-3 text-small text-default-400">
+                <Avatar
+                  radius="full"
+                  className="w-48 h-48 object-cover"
+                  shadow="lg"
+                  src="https://avatars.githubusercontent.com/u/65607182?v=4"
+                />
+              </CardBody>
+            </Card>
           </div>
         </div>
       </PageContent>

@@ -12,6 +12,7 @@ import { GET_USER_BY_ID } from "../graphql/queries";
 import { useMutation, useLazyQuery } from "@apollo/client";
 import { useDispatch } from "react-redux";
 import { setUser } from "../reducers/user";
+import CommentForm from "./CommentForm";
 
 import {
   Avatar,
@@ -32,7 +33,7 @@ import Comment from "./Comment";
 function ArticleMenu({ article, refetch }) {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
-  const { token, userId } = useRouteLoaderData("root");
+  const { token } = useRouteLoaderData("root");
 
   const [isLiked, setIsLiked] = useState(false);
   const [isFollowed, setIsFollowed] = useState(false);
@@ -141,7 +142,7 @@ function ArticleMenu({ article, refetch }) {
 
   return (
     <div className="sticky top-1/2 transform -translate-y-0">
-      <Card className="max-w-full m-4">
+      <Card className="max-w-full mb-8 p-0 ">
         <CardHeader className="justify-between p-6">
           <div className="flex gap-5">
             <Avatar
@@ -177,11 +178,11 @@ function ArticleMenu({ article, refetch }) {
           </div>
         </CardHeader>
         <Divider />
-        <CardBody>
+        <CardBody className="p-3">
           <div className="flex justify-between items-center">
             <h6>{article.title}</h6>
           </div>
-          <Accordion variant="bordered" className="mt-4">
+          <Accordion className="mt-4" isCompact>
             <AccordionItem
               aria-label="Comments"
               title="Read Comments"
@@ -189,6 +190,7 @@ function ArticleMenu({ article, refetch }) {
               classNames={{
                 title: "text-medium",
               }}
+              className="p-0"
             >
               {article.comments.map((comment, index) => (
                 <Comment
@@ -200,63 +202,8 @@ function ArticleMenu({ article, refetch }) {
                 />
               ))}
             </AccordionItem>
-            <AccordionItem
-              aria-label="Comment Form"
-              title="Write a Comment"
-              classNames={{
-                title: "text-medium",
-              }}
-            >
-              {user ? (
-                <div className="w-full p-2">
-                  <form onSubmit={handleCreateComment}>
-                    <Textarea
-                      label="Write a comment"
-                      variant="bordered"
-                      labelPlacement="outside"
-                      placeholder="Enter your comment here"
-                      className="max-w-full"
-                      classNames={{
-                        label: "hidden",
-                      }}
-                      name="comment"
-                      required
-                      id="comment"
-                      value={commentValue}
-                      onValueChange={setCommentValue}
-                    />
-                    <Button
-                      color="success"
-                      radius="full"
-                      size="md"
-                      fullWidth
-                      variant="ghost"
-                      className="mt-2"
-                      type="submit"
-                    >
-                      Send
-                    </Button>
-                  </form>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center gap-2 p-2">
-                  <h6 className="text-default-400 text-small">
-                    You must be logged in to comment
-                  </h6>
-                  <Button
-                    color="success"
-                    radius="full"
-                    size="md"
-                    variant="faded"
-                    onPress={() => navigate("/auth")}
-                    className="mt-2"
-                  >
-                    Login
-                  </Button>
-                </div>
-              )}
-            </AccordionItem>
           </Accordion>
+          <CommentForm article={article} refetch={refetch} />
         </CardBody>
         <Divider />
         <CardFooter className="flex items-center justify-center gap-3">
@@ -299,7 +246,7 @@ function ArticleMenu({ article, refetch }) {
               variant={isLiked ? "solid" : "bordered"}
               onPress={handleLikeArticle}
             >
-              {isLiked ? "Unlike article" : "Like article"}
+              {isLiked ? "Unlike" : "Like"}
             </Button>
           </div>
         </CardFooter>
