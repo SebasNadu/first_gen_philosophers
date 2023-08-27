@@ -337,7 +337,7 @@ export const articleResolver = {
                   reject(error);
                 }
                 resolve(result);
-              }
+              },
             );
 
             imageStream.pipe(uploadStream);
@@ -368,7 +368,7 @@ export const articleResolver = {
       const updatedArticle = await Article.findByIdAndUpdate(
         id,
         updatedFields,
-        { new: true }
+        { new: true },
       ).catch((error) => {
         throw error;
       });
@@ -507,11 +507,11 @@ export const articleResolver = {
             {
               role: "system",
               content:
-                "You will be provided with a block of text, and your task is to extract a list of keywords from it.",
+                "You will be provided with an article (delimited with HTML tags). Suggest a very descriptive and graphical sentence to generate an image with it.",
             },
             {
               role: "user",
-              content: content,
+              content: content.trim().substring(0, 4096),
             },
           ],
           temperature: 0.8,
@@ -521,7 +521,8 @@ export const articleResolver = {
         // const keywords = responseText.data.choices[0].message.content.trim();
         const keywords = responseText.data.choices[0].message?.content?.trim();
         const responsePicture = await openai.createImage({
-          prompt: `An expressive or abstract paiting or photo of ${keywords}`,
+          prompt: `An expressive paiting or photo of: ${keywords}`,
+          // prompt: `${keywords} in flat art style`,
           n: 3,
           size: "1024x1024",
         });

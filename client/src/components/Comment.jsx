@@ -1,18 +1,34 @@
 import { useState, useEffect } from "react";
 import { Avatar, Button } from "@nextui-org/react";
-import { LIKE_COMMENT, UNLIKE_COMMENT } from "../graphql/mutations";
+import {
+  LIKE_COMMENT,
+  UNLIKE_COMMENT,
+  FOLLOW_USER,
+  UNFOLLOW_USER,
+} from "../graphql/mutations";
 import { useMutation } from "@apollo/client";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setUser } from "../reducers/user";
 
-export default function Comments({ id, article, comment, refetch }) {
+export default function Comments({
+  id,
+  article,
+  comment,
+  refetchArticle,
+  refetchGetUser,
+}) {
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
   const [isCommentLiked, setIsCommentLiked] = useState(false);
   const [isFollowed, setIsFollowed] = useState(false);
 
   const [likeComment] = useMutation(LIKE_COMMENT);
   const [unlikeComment] = useMutation(UNLIKE_COMMENT);
+  const [followUser] = useMutation(FOLLOW_USER);
+  const [unfollowUser] = useMutation(UNFOLLOW_USER);
 
   const navigate = useNavigate();
 
@@ -20,7 +36,7 @@ export default function Comments({ id, article, comment, refetch }) {
     if (comment && user) {
       const isLiked = comment.likes.some((like) => like.id === user.id);
       const isFollowed = user.following.some(
-        (follow) => follow.id === comment.user.id
+        (follow) => follow.id === comment.user.id,
       );
       setIsCommentLiked(isLiked);
       setIsFollowed(isFollowed);
@@ -47,7 +63,7 @@ export default function Comments({ id, article, comment, refetch }) {
           },
         });
       }
-      await refetch({ articleId: article.id });
+      await refetchArticle({ articleId: article.id });
     } catch (error) {
       toast.error("Something went wrong");
       toast.error(error.message);
@@ -78,7 +94,9 @@ export default function Comments({ id, article, comment, refetch }) {
           },
         });
       }
-      await refetch({ articleId: article.id });
+      await refetchArticle({ articleId: article.id });
+      const updatedUser = await refetchGetUser({ getUserByIdId: user.id });
+      dispatch(setUser(updatedUser.data.getUserById));
     } catch (error) {
       toast.error("Something went wrong");
       toast.error(error.message);
@@ -107,45 +125,32 @@ export default function Comments({ id, article, comment, refetch }) {
         <div>
           <Button
             className={
-              !comment.user.followers.some((follow) => follow.id === user.id)
+              !isFollowed
                 ? "mx-1 bg-transparent text-foreground border-default-200"
                 : "mx-1"
             }
             color="success"
             radius="full"
             size="sm"
-            variant={
-              comment.user.followers.some((follow) => follow.id === user.id)
-                ? "solid"
-                : "bordered"
-            }
+            variant={isFollowed ? "solid" : "bordered"}
             onPress={handleFollowUser}
           >
-            {comment.user.followers.some((follow) => follow.id === user.id)
-              ? "Unfollow"
-              : "Follow"}
-            ({comment.user.followers.length})
+            {isFollowed ? "Unfollow" : "Follow"}({comment.user.followers.length}
+            )
           </Button>
           <Button
             className={
-              !comment.likes.some((like) => like.id === user.id)
+              !isCommentLiked
                 ? "mx-1 bg-transparent text-foreground border-default-200"
                 : "mx-1"
             }
             color="success"
             radius="full"
             size="sm"
-            variant={
-              comment.likes.some((like) => like.id === user.id)
-                ? "solid"
-                : "bordered"
-            }
+            variant={isCommentLiked ? "solid" : "bordered"}
             onPress={handleLikeComment}
           >
-            {comment.likes.some((like) => like.id === user.id)
-              ? "Unlike"
-              : "Like"}
-            ({comment.likes.length})
+            {isCommentLiked ? "Unlike" : "Like"}({comment.likes.length})
           </Button>
         </div>
       </div>

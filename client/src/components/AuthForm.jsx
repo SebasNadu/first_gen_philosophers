@@ -139,10 +139,10 @@ function AuthForm() {
         throw new Error(errorLogin.message);
       }
 
-      const { token, userId, user } = response.data.login;
+      const { token, user } = response.data.login;
 
       localStorage.setItem("token", token);
-      localStorage.setItem("userId", userId);
+      localStorage.setItem("userId", user.id);
       const expiration = new Date();
       expiration.setHours(expiration.getHours() + 5);
       localStorage.setItem("expiration", expiration.toISOString());

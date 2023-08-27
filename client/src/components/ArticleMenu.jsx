@@ -8,7 +8,11 @@ import {
   UNFOLLOW_USER,
   CREATE_COMMENT,
 } from "../graphql/mutations";
-import { useMutation } from "@apollo/client";
+import { GET_USER_BY_ID } from "../graphql/queries";
+import { useMutation, useLazyQuery } from "@apollo/client";
+import { useDispatch } from "react-redux";
+import { setUser } from "../reducers/user";
+
 import {
   Avatar,
   Card,
@@ -26,6 +30,7 @@ import { toast } from "sonner";
 import Comment from "./Comment";
 
 function ArticleMenu({ article, refetch }) {
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
   const { token, userId } = useRouteLoaderData("root");
 
@@ -40,19 +45,19 @@ function ArticleMenu({ article, refetch }) {
   const [followUser] = useMutation(FOLLOW_USER);
   const [unfollowUser] = useMutation(UNFOLLOW_USER);
   const [createComment] = useMutation(CREATE_COMMENT);
+  const [getUserById, { refetch: refetchGetUser }] =
+    useLazyQuery(GET_USER_BY_ID);
 
   useEffect(() => {
-    if (article && userId) {
-      const isLiked = article.likes.some((like) => like.id === userId);
-      setIsLiked(isLiked);
-    }
-    if (user && article) {
+    if (article && user) {
+      const isLiked = article.likes.some((like) => like.id === user.id);
       const isFollowed = user.following.some(
-        (follow) => follow.id === article.user.id
+        (follow) => follow.id === article.user.id,
       );
+      setIsLiked(isLiked);
       setIsFollowed(isFollowed);
     }
-  }, [article, userId, user]);
+  }, [article, user]);
 
   const handleLikeArticle = async () => {
     if (!token) {
@@ -65,10 +70,12 @@ function ArticleMenu({ article, refetch }) {
         await unlikeArticle({
           variables: { unlikeArticleId: article.id },
         });
+        setIsLiked(false);
       } else {
         await likeArticle({
           variables: { likeArticleId: article.id },
         });
+        setIsLiked(true);
       }
       await refetch({ articleId: article.id });
     } catch (err) {
@@ -91,12 +98,18 @@ function ArticleMenu({ article, refetch }) {
         await unfollowUser({
           variables: { unfollowUserId: article.user.id },
         });
+        setIsFollowed(false);
       } else {
         await followUser({
           variables: { followUserId: article.user.id },
         });
+        setIsFollowed(true);
       }
       await refetch({ articleId: article.id });
+      const updatedUser = await getUserById({
+        variables: { getUserByIdId: user.id },
+      });
+      dispatch(setUser(updatedUser.data.getUserById));
     } catch (err) {
       toast.error(err.message);
     }
@@ -182,7 +195,8 @@ function ArticleMenu({ article, refetch }) {
                   key={index}
                   article={article}
                   comment={comment}
-                  refetch={refetch}
+                  refetchArticle={refetch}
+                  refetchGetUser={refetchGetUser}
                 />
               ))}
             </AccordionItem>
