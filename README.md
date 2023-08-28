@@ -5,7 +5,7 @@
 - [SIMONA AIMAR](https://www.linkedin.com/in/simona-aimar/)
 - [ATTILA KEKESI](https://github.com/akekesi/)
 - [ARTHUR LIMPENS](https://www.linkedin.com/in/arthurlimpens/)
-- [TAKA NAKAJO](LINK)
+- [TAKA NAKAJO](https://www.linkedin.com/in/njn0te/)
 - [SEBASTIAN NAVARRO](https://www.linkedin.com/in/sebasnadu/)
 
 ## 👷🔧 Our Tools
@@ -22,5 +22,5 @@
 
 ## 💻 Our Code
 
-- [#FirstGenPhilosophers Repository](https://linktodocumentation)
+- [#FirstGenPhilosophers Repository](https://github.com/SebasNadu/first_gen_philosophers)
 - [AI Chatbox and Picture Generator](https://github.com/akekesi/openai)

@@ -193,7 +193,7 @@ const DiscoverPage = () => {
                   radius="full"
                   className="w-48 h-48 object-cover"
                   shadow="lg"
-                  src="https://avatars.githubusercontent.com/u/65607182?v=4"
+                  src="https://ca.slack-edge.com/T039P7U66-U04D8513SQ0-ce69105dae18-192"
                 />
               </CardBody>
             </Card>
